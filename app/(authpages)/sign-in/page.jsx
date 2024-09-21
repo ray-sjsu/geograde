@@ -16,6 +16,9 @@ const SignIn = () => {
   const router = useRouter();
 
   const handleSignIn = async () => {
+    if (user) {
+      router.push("/"); // add profile page here later
+    }
     try {
       const res = await signInWithEmailAndPassword(email, password);
       console.log({ res });
