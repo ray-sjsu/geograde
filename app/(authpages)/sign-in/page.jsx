@@ -14,11 +14,11 @@ const SignIn = () => {
   const [signInWithEmailAndPassword] = useSignInWithEmailAndPassword(auth);
   const [user, loading, error] = useAuthState(auth);
   const router = useRouter();
+  if (user) {
+    router.push("/"); // add profile page here later
+  }
 
   const handleSignIn = async () => {
-    if (user) {
-      router.push("/"); // add profile page here later
-    }
     try {
       const res = await signInWithEmailAndPassword(email, password);
       console.log({ res });

@@ -15,11 +15,11 @@ const SignUp = () => {
     useCreateUserWithEmailAndPassword(auth);
   const [user, loading, error] = useAuthState(auth);
   const router = useRouter();
+  if (user) {
+    router.push("/"); // add profile page here later
+  }
 
   const handleSignUp = async () => {
-    if (user) {
-      router.push("/"); // add profile page here later
-    }
     try {
       const res = await createUserWithEmailAndPassword(email, password);
       console.log({ res });
