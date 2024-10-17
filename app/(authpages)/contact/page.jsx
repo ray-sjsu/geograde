@@ -3,7 +3,6 @@ import { useRouter } from "next/navigation";
 import Link from 'next/link'
 import React from 'react';
 
-
 const ContactUs = () => {
     const router = useRouter(); 
 
@@ -17,7 +16,6 @@ const ContactUs = () => {
     };
 
 return (
-    <body>
         <div className="min-h-screen flex items-center justify-center bg-gray-900 flex-col space-y-2">
             <div className="bg-gray-800 p-10 rounded-lg shadow-xl w-96">
                 <div>
@@ -25,6 +23,7 @@ return (
                         Have any questions? Ideas? Contact us!
                         
                     </p>
+
                     <button onClick={() => handleCopy('example@gmail.com')}>
                         Email: example@gmail.com
                     </button>
@@ -55,10 +54,7 @@ return (
                     Fall 2024, SJSU
                 
             </div>
-        </div>
-
-    </body>
-    
+        </div>    
     
     );
 };
