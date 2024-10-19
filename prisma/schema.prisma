@@ -14,12 +14,15 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  googleId  String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String    @id @default(cuid())
+  googleId    String    @unique
+  name        String
+  email       String
+  imageUrl    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  lastSignIn  DateTime?
+  lastSignOut DateTime?
 }
 
 model StudySpot {
