@@ -1,6 +1,8 @@
-import Navigation from "../components/context/navigation/navbar";
+import Navigation from "../components/context/navigation/navbar/Navbar";
 import "./globals.css";
 import { Inter } from "next/font/google";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { AppSidebar } from "@/components/app-sidebar"
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -11,6 +13,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
+    
     <html lang="en">
       <body className={inter.className}>
         <Navigation />
