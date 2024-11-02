@@ -1,7 +1,6 @@
 import {
   TRIPADVISOR_API_KEY,
-  API_LOCATION_SEARCH_GEOCODE_URL,
-  API_LOCATION_SEARCH_KEYWORD_URL,
+  API_LOCATION_DETAILS_PHOTOS_URL,
   TRIPADVISOR_API_OPTIONS,
 } from "@/lib/tripadvisor-api/api-setup";
 
@@ -9,16 +8,11 @@ function validateSearchParams(searchParams) {
   // Required, but provided default value
   const key = searchParams.get("key") || TRIPADVISOR_API_KEY;
   // Required (either latLong only, searchQuery only, or both)
-  const latLong = searchParams.get("latLong");
-  const searchQuery = searchParams.get("searchQuery");
+  const locationId = searchParams.get("locationId");
 
-  // Optional
-  const category = searchParams.get("category");
-  const phone = searchParams.get("phone");
-  const address = searchParams.get("address");
-  const radius = searchParams.get("radius");
   // Optional, but provided default value
-  const radiusUnit = searchParams.get("radiusUnit") || "mi";
+  const limit = searchParams.get("limit") || 5; // There is a limit of 5 per API terms
+  const offset = searchParams.get("offset") || 0;
   const language = searchParams.get("language") || "en";
 
   // Check for missing API key
@@ -29,44 +23,49 @@ function validateSearchParams(searchParams) {
       error: "Missing .env variable: TRIPADVISOR_API_KEY",
     };
   }
-  if (!latLong && !searchQuery) {
+  if (!locationId || isNaN(parseInt(locationId, 10))) {
     return {
       query: searchParams.toString(),
       endpoint: null,
-      error: `Please ensure that either "latLong" or "searchQuery" is set, or both.`,
+      error: `Please ensure that "locationId" is provided and is a number.`,
+    };
+  }
+  if (limit && isNaN(parseInt(limit, 10))) {
+    return {
+      query: searchParams.toString(),
+      endpoint: null,
+      error: `Please ensure that "limit" is a number.`,
+    };
+  }
+  if (offset && isNaN(parseInt(offset, 10))) {
+    return {
+      query: searchParams.toString(),
+      endpoint: null,
+      error: `Please ensure that "offset" is a number.`,
     };
   }
 
   // Build completed endpoint with searchParams
-  if (key && (latLong || searchQuery)) {
+  if (key && locationId) {
     let completedEndpoint = "";
     const completeSearchParams = new URLSearchParams();
 
     // Required (key)
     if (key) completeSearchParams.append("key", key);
 
-    // Required (either latLong only, searchQuery only, or both)
-    if (searchQuery)
-      completeSearchParams.append(
-        "searchQuery",
-        encodeURIComponent(searchQuery)
+    // Required
+    if (locationId)
+      completedEndpoint = API_LOCATION_DETAILS_PHOTOS_URL.replace(
+        "{locationId}",
+        locationId
       );
-    if (latLong)
-      completeSearchParams.append("latLong", encodeURIComponent(latLong));
 
     // Optional
-    if (category) completeSearchParams.append("category", category);
-    if (phone) completeSearchParams.append("phone", phone);
-    if (address) completeSearchParams.append("address", address);
-    if (radius) completeSearchParams.append("radius", radius);
-    if (radiusUnit) completeSearchParams.append("radiusUnit", radiusUnit);
+    if (limit) completeSearchParams.append("limit", limit);
+    if (offset) completeSearchParams.append("limit", offset);
     if (language) completeSearchParams.append("language", language);
 
-    if ((searchQuery && latLong) || (searchQuery && !latLong)) {
-      completedEndpoint = `${API_LOCATION_SEARCH_KEYWORD_URL}?${completeSearchParams.toString()}`;
-    } else if (latLong) {
-      completedEndpoint = `${API_LOCATION_SEARCH_GEOCODE_URL}?${completeSearchParams.toString()}`;
-    }
+    completedEndpoint = `${completedEndpoint}?${completeSearchParams.toString()}`;
 
     return {
       query: completeSearchParams.toString(),
@@ -107,10 +106,10 @@ export async function GET(req) {
     if (!response.ok) {
       return new Response(
         JSON.stringify({
-          error: `Failed to fetch data from tripadvisor API. Invalid key or wrong user input? | Search parameters provided: ${givenSearchParams} | Endpoint: ${completeEndpointURL}`,
+          error: `Failed to fetch data from tripadvisor API. Location doesn't exist? | Search parameters provided: ${givenSearchParams} | Endpoint: ${completeEndpointURL} | Status: ${response.status}`,
         }),
         {
-          status: response.status,
+          status: 500,
         }
       );
     }
