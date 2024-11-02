@@ -3,6 +3,11 @@ import {
   API_LOCATION_DETAILS_PHOTOS_URL,
   TRIPADVISOR_API_OPTIONS,
 } from "@/lib/tripadvisor-api/api-setup";
+import {
+  DEFAULT_LANGUAGE,
+  DEFAULT_PHOTO_LIMIT,
+  DEFAULT_PHOTO_OFFSET,
+} from "@/lib/tripadvisor-api/constants";
 
 function validateSearchParams(searchParams) {
   // Required, but provided default value
@@ -11,9 +16,9 @@ function validateSearchParams(searchParams) {
   const locationId = searchParams.get("locationId");
 
   // Optional, but provided default value
-  const limit = searchParams.get("limit") || 5; // There is a limit of 5 per API terms
-  const offset = searchParams.get("offset") || 0;
-  const language = searchParams.get("language") || "en";
+  const limit = searchParams.get("limit") || DEFAULT_PHOTO_LIMIT;
+  const offset = searchParams.get("offset") || DEFAULT_PHOTO_OFFSET;
+  const language = searchParams.get("language") || DEFAULT_LANGUAGE;
 
   // Check for missing API key
   if (key.length < 10) {
@@ -62,7 +67,7 @@ function validateSearchParams(searchParams) {
 
     // Optional
     if (limit) completeSearchParams.append("limit", limit);
-    if (offset) completeSearchParams.append("limit", offset);
+    if (offset) completeSearchParams.append("offset", offset);
     if (language) completeSearchParams.append("language", language);
 
     completedEndpoint = `${completedEndpoint}?${completeSearchParams.toString()}`;

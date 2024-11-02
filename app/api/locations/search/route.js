@@ -4,6 +4,10 @@ import {
   API_LOCATION_SEARCH_KEYWORD_URL,
   TRIPADVISOR_API_OPTIONS,
 } from "@/lib/tripadvisor-api/api-setup";
+import {
+  DEFAULT_LANGUAGE,
+  DEFAULT_RADIUS_UNIT,
+} from "@/lib/tripadvisor-api/constants";
 
 function validateSearchParams(searchParams) {
   // Required, but provided default value
@@ -18,8 +22,8 @@ function validateSearchParams(searchParams) {
   const address = searchParams.get("address");
   const radius = searchParams.get("radius");
   // Optional, but provided default value
-  const radiusUnit = searchParams.get("radiusUnit") || "mi";
-  const language = searchParams.get("language") || "en";
+  const radiusUnit = searchParams.get("radiusUnit") || DEFAULT_RADIUS_UNIT;
+  const language = searchParams.get("language") || DEFAULT_LANGUAGE;
 
   // Check for missing API key
   if (key.length < 10) {

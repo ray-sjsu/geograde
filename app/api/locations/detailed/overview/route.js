@@ -3,6 +3,10 @@ import {
   API_LOCATION_DETAILS_OVERVIEW_URL,
   TRIPADVISOR_API_OPTIONS,
 } from "@/lib/tripadvisor-api/api-setup";
+import {
+  DEFAULT_CURRENCY,
+  DEFAULT_LANGUAGE,
+} from "@/lib/tripadvisor-api/constants";
 
 function validateSearchParams(searchParams) {
   // Required, but provided default value
@@ -11,8 +15,8 @@ function validateSearchParams(searchParams) {
   const locationId = searchParams.get("locationId");
 
   // Optional, but provided default value
-  const currency = searchParams.get("currency") || "USD";
-  const language = searchParams.get("language") || "en";
+  const currency = searchParams.get("currency") || DEFAULT_CURRENCY;
+  const language = searchParams.get("language") || DEFAULT_LANGUAGE;
 
   // Check for missing API key
   if (key.length < 10) {
