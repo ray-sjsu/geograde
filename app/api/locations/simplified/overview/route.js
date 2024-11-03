@@ -3,7 +3,6 @@
 // 1. Given a locationId, find if this locationId exists. /api/locations/detailed/overview
 // 2. If locationId does exist, retrieve photos too. /api/locations/detailed/photos
 // 3. Process both JSON into one payload.
-
 import {
   API_CUSTOM_LOCATION_OVERVIEW_URL,
   API_CUSTOM_LOCATION_PHOTOS_URL,
