@@ -8,18 +8,27 @@ import {
   DEFAULT_LANGUAGE,
   DEFAULT_RADIUS_UNIT,
 } from "@/lib/tripadvisor-api/constants";
+import { isUriEncoded } from "@/lib/tripadvisor-api/utility";
 
 function validateSearchParams(searchParams) {
   // Required, but provided default value
   const key = searchParams.get("key") || TRIPADVISOR_API_KEY;
   // Required (either latLong only, searchQuery only, or both)
-  const latLong = searchParams.get("latLong");
-  const searchQuery = searchParams.get("searchQuery");
+  const latLong = isUriEncoded(searchParams.get("searchQuery"))
+    ? decodeURIComponent(searchParams.get("latLong"))
+    : searchParams.get("latLong");
+  const searchQuery = isUriEncoded(searchParams.get("searchQuery"))
+    ? decodeURIComponent(searchParams.get("searchQuery"))
+    : searchParams.get("searchQuery");
 
   // Optional
   const category = searchParams.get("category");
-  const phone = searchParams.get("phone");
-  const address = searchParams.get("address");
+  const phone = isUriEncoded(searchParams.get("phone"))
+    ? decodeURIComponent(searchParams.get("phone"))
+    : searchParams.get("phone");
+  const address = isUriEncoded(searchParams.get("address"))
+    ? decodeURIComponent(searchParams.get("address"))
+    : searchParams.get("address");
   const radius = searchParams.get("radius");
   // Optional, but provided default value
   const radiusUnit = searchParams.get("radiusUnit") || DEFAULT_RADIUS_UNIT;
@@ -60,8 +69,10 @@ function validateSearchParams(searchParams) {
 
     // Optional
     if (category) completeSearchParams.append("category", category);
-    if (phone) completeSearchParams.append("phone", phone);
-    if (address) completeSearchParams.append("address", address);
+    if (phone | (phone !== "null"))
+      completeSearchParams.append("phone", encodeURIComponent(phone));
+    if (address | (address !== "null"))
+      completeSearchParams.append("address", encodeURIComponent(address));
     if (radius) completeSearchParams.append("radius", radius);
     if (radiusUnit) completeSearchParams.append("radiusUnit", radiusUnit);
     if (language) completeSearchParams.append("language", language);
@@ -104,6 +115,7 @@ export async function GET(req) {
       }
     );
   }
+  console.log(givenSearchParams);
 
   try {
     const response = await fetch(completeEndpointURL, TRIPADVISOR_API_OPTIONS);
