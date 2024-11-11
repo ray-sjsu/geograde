@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   useSignInWithEmailAndPassword,
   useAuthState,
 } from "react-firebase-hooks/auth";
-import { auth } from "@/app/firebase/config";
+import { auth } from "/app/firebase/config";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { loginWithGooglePopup } from "@/lib/auth/loginWithGooglePopup";
+import { loginWithGooglePopup } from "/lib/auth/loginWithGooglePopup.js";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -16,21 +16,22 @@ const SignIn = () => {
   const [signInWithEmailAndPassword] = useSignInWithEmailAndPassword(auth);
   const [user, loading, error] = useAuthState(auth);
   const router = useRouter();
-  if (user) {
-    router.push("/"); // add profile page here later
-  }
+
+  // Redirect if the user is already logged in
+  useEffect(() => {
+    if (user) {
+      router.push("/"); // Redirect to home or profile page if logged in
+    }
+  }, [user, router]);
 
   const handleSignIn = async () => {
     try {
-      const res = await signInWithEmailAndPassword(email, password);
-      console.log({ res });
-      if (user) {
-        setEmail("");
-        setPassword("");
-        router.push("/");
-      }
+      await signInWithEmailAndPassword(email, password);
+      console.log("Signed in successfully");
+      setEmail("");
+      setPassword("");
     } catch (e) {
-      console.error(e);
+      console.error("Error signing in:", e);
     }
   };
 

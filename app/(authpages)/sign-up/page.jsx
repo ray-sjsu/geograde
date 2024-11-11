@@ -5,10 +5,10 @@ import {
   useCreateUserWithEmailAndPassword,
   useAuthState,
 } from "react-firebase-hooks/auth";
-import { auth } from "@/app/firebase/config";
+import { auth } from "/app/firebase/config.js"
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { loginWithGooglePopup } from "@/lib/auth/loginWithGooglePopup";
+import { loginWithGooglePopup } from "/lib/auth/loginWithGooglePopup";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");

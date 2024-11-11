@@ -4,7 +4,7 @@
 import React from "react";
 import Link from "next/link";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "@/app/firebase/config";
+import { auth } from "/app/firebase/config";
 import { signOut } from "firebase/auth";
 
 const ClientAuthMenu = () => {

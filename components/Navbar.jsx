@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import ClientAuthMenu from "@/components/ClientAuthMenu";
+import ClientAuthMenu from "/components/ClientAuthMenu";
 
 const Navbar = () => {
   return (
