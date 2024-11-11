@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id          String    @id @default(cuid())
+  googleId    String    @unique
+  name        String
+  email       String
+  imageUrl    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  lastSignIn  DateTime?
+  lastSignOut DateTime?
+
+  // Relations
+  favoriteStudySpots FavoriteStudySpot[]
+  reviews            Review[]
+}
+
+model StudySpot {
+  locationId     String @id @unique // Tripadvisor Location ID (unique) to be API compliant.
+  totalReviews   Int?
+  averageRating  Float?
+  totalFavorites Int?
+
+  // Relations
+  favoritedBy FavoriteStudySpot[]
+  reviews     Review[]
+}
+
+model FavoriteStudySpot {
+  id                  String    @id @default(cuid())
+  user                User      @relation(fields: [userId], references: [id])
+  userId              String
+  studySpot           StudySpot @relation(fields: [studySpotLocationId], references: [locationId])
+  studySpotLocationId String
+  dateCreated         DateTime  @default(now())
+  dateModified        DateTime  @updatedAt
+  rank                Int
+
+  @@unique([userId, studySpotLocationId]) // User can only favorite a study spot once
+  @@unique([userId, rank]) // Rank is unique within each user's favorite study spots
+}
+
+model Review {
+  id                  String    @id @default(cuid())
+  user                User      @relation(fields: [userId], references: [id])
+  userId              String
+  studySpot           StudySpot @relation(fields: [studySpotLocationId], references: [locationId])
+  studySpotLocationId String
+  content             String
+  rating              Int
+  dateCreated         DateTime  @default(now())
+  dateModified        DateTime  @updatedAt
+  images              Image[]
+
+  @@unique([userId, studySpotLocationId]) // User can only leave one review per study spot
+}
+
+model Image {
+  id       String  @id @default(cuid())
+  url      String // Directly host within external provider
+  alt      String?
+  review   Review  @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  reviewId String
+}
