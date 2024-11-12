@@ -3,12 +3,12 @@ import {
   API_LOCATION_SEARCH_GEOCODE_URL,
   API_LOCATION_SEARCH_KEYWORD_URL,
   TRIPADVISOR_API_OPTIONS,
-} from "@/lib/tripadvisor-api/api-setup";
+} from "/lib/tripadvisor-api/api-setup";
 import {
   DEFAULT_LANGUAGE,
   DEFAULT_RADIUS_UNIT,
-} from "@/lib/tripadvisor-api/constants";
-import { isUriEncoded } from "@/lib/tripadvisor-api/utility";
+} from "/lib/tripadvisor-api/constants";
+import { isUriEncoded } from "/lib/tripadvisor-api/utility";
 
 function validateSearchParams(searchParams) {
   // Required, but provided default value

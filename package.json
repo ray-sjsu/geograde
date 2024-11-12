@@ -12,6 +12,9 @@
     "db-push": "npx prisma db push"
   },
   "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "firebase": "^10.13.2",
+    "firebase-admin": "^12.6.0",
     "axios": "^1.7.7",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",

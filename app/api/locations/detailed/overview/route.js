@@ -2,11 +2,11 @@ import {
   TRIPADVISOR_API_KEY,
   API_LOCATION_DETAILS_OVERVIEW_URL,
   TRIPADVISOR_API_OPTIONS,
-} from "@/lib/tripadvisor-api/api-setup";
+} from "/lib/tripadvisor-api/api-setup";
 import {
   DEFAULT_CURRENCY,
   DEFAULT_LANGUAGE,
-} from "@/lib/tripadvisor-api/constants";
+} from "/lib/tripadvisor-api/constants";
 
 function validateSearchParams(searchParams) {
   // Required, but provided default value
