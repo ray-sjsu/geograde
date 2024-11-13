@@ -10,6 +10,7 @@ import {
   DEFAULT_RADIUS_UNIT,
   DEFAULT_SEARCH_LIMIT,
   DEFAULT_SEARCH_QUERY,
+  DEFAULT_CATEGORY,
 } from "@/lib/tripadvisor-api/constants";
 import React, { useState } from "react";
 
