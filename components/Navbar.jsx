@@ -4,7 +4,7 @@ import ClientAuthMenu from "/components/ClientAuthMenu";
 
 const Navbar = () => {
   return (
-    <div className="navbar bg-base-300 sticky top-0 h-20 shadow-md">
+    <div className="navbar bg-base-300 sticky top-0 h-20 shadow-md z-10">
       <div className="flex justify-between container mx-auto px-4 h-full">
         {/* Logo redirects to Home */}
         <div className="flex items-center">
