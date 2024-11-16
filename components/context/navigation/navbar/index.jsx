@@ -20,7 +20,7 @@ const Navbar = ({ toggle }) => {
 
             <ul className="hidden md:flex gap-x-6 text-white">
               <li>
-                <Link href="/browse">
+                <Link href="/search">
                   <p>Browse</p>
                 </Link>
               </li>
@@ -30,7 +30,7 @@ const Navbar = ({ toggle }) => {
                 </Link>
               </li>
               <li>
-                <Link href="/sign-up">
+                <Link href="/sign-in">
                   <p>Register</p>
                 </Link>
               </li>

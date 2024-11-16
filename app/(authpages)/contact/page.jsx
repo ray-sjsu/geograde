@@ -19,6 +19,7 @@ return (
         <div className="min-h-screen flex items-center justify-center bg-gray-900 flex-col space-y-2">
             <div className="bg-gray-800 p-10 rounded-lg shadow-xl w-96">
                 <div>
+                    <h1>BTW THIS IS NOT DONE YET</h1>
                     <p>
                         Have any questions? Ideas? Contact us!
                         

@@ -9,6 +9,7 @@ import { auth } from "@/app/firebase/config";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { loginWithGooglePopup } from "@/lib/auth/loginWithGooglePopup";
+import Image from "next/image";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
@@ -63,10 +64,12 @@ const SignUp = () => {
           onClick={loginWithGooglePopup}
           className="flex items-center justify-center p-2 bg-white border border-gray-300 text-gray-700 text-lg font-medium rounded-lg shadow-md hover:shadow-lg transition-shadow"
         >
-          <img
+          <Image
             src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Logo_2013_Google.png"
             alt="Google Logo"
             className="w-6 h-6 mr-2"
+            height={200}
+            width={200}
           />
           Sign Up with Google
         </button>
