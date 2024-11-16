@@ -29,7 +29,8 @@ const SearchInputs = ({ formData, handleChange }) => {
           <label className="block">
             <span className="text-gray-600">Search Query</span>
             <span className="text-sm text-gray-500 block">
-              Text to search by location name (e.g., "Coffee," "Restaurant").
+              Text to search by location name (e.g., &quot;Coffee,&quot;
+              &quot;Restaurant&quot;).
             </span>
             <input
               type="text"
@@ -50,8 +51,9 @@ const SearchInputs = ({ formData, handleChange }) => {
           <label className="block">
             <span className="text-gray-600">Category</span>
             <span className="text-sm text-gray-500 block">
-              Filters results by type: "hotels," "attractions," "restaurants,"
-              or "geos".
+              Filters results by type: &quot;hotels,&quot;
+              &quot;attractions,&quot; &quot;restaurants,&quot; or
+              &quot;geos&quot;.
             </span>
             <select
               name="category"
@@ -71,7 +73,7 @@ const SearchInputs = ({ formData, handleChange }) => {
             <span className="text-gray-600">Phone</span>
             <span className="text-sm text-gray-500 block">
               Phone number to filter results (format can include spaces and
-              dashes, without "+").
+              dashes, without &quot;+&quot;).
             </span>
             <input
               type="text"
@@ -113,7 +115,8 @@ const SearchInputs = ({ formData, handleChange }) => {
           <label className="block">
             <span className="text-gray-600">Radius Unit</span>
             <span className="text-sm text-gray-500 block">
-              Unit for the radius (default is "mi"): "km," "mi," or "m".
+              Unit for the radius (default is &quot;mi&quot;): &quot;km,&quot;
+              &quot;mi,&quot; or &quot;m&quot;.
             </span>
             <select
               name="radiusUnit"
@@ -131,8 +134,8 @@ const SearchInputs = ({ formData, handleChange }) => {
           <label className="block">
             <span className="text-gray-600">Language</span>
             <span className="text-sm text-gray-500 block">
-              Language for results (default is "en"): e.g., "en" for English,
-              "es" for Spanish.
+              Language for results (default is &quot;en&quot;): e.g.,
+              &quot;en&quot; for English, &quot;es&quot; for Spanish.
             </span>
             <select
               name="language"

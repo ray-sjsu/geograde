@@ -7,6 +7,7 @@ import {
   DEFAULT_PHOTO_LIMIT,
   DEFAULT_PHOTO_OFFSET,
 } from "@/lib/tripadvisor-api/constants";
+import Image from "next/image";
 
 const locationDetailsAPI = async (locationId, params) => {
   try {
@@ -105,10 +106,12 @@ const LocationDetailsPage = ({ params }) => {
 
         {/* Rating and Reviews */}
         <div className="flex items-center mb-4">
-          <img
+          <Image
             src={overview.rating_image_url}
             alt="Rating"
             className="w-6 h-6 mr-2"
+            width={200}
+            height={200}
           />
           <p className="text-gray-700">{overview.rating} / 5</p>
           <p className="ml-2 text-gray-500">({overview.num_reviews} reviews)</p>
@@ -179,10 +182,12 @@ const LocationDetailsPage = ({ params }) => {
           <div className="grid grid-cols-2 gap-4">
             {Object.values(overview.subratings).map((subrating, index) => (
               <div key={index} className="flex items-center">
-                <img
+                <Image
                   src={subrating.rating_image_url}
                   alt={`${subrating.localized_name} Rating`}
                   className="w-6 h-6 mr-2"
+                  height={200}
+                  width={200}
                 />
                 <p className="text-gray-700">
                   {subrating.localized_name}: {subrating.value} / 5
@@ -198,10 +203,12 @@ const LocationDetailsPage = ({ params }) => {
           <div className="grid grid-cols-2 gap-4">
             {photos.data?.map((photo) => (
               <div key={photo.id} className="flex flex-col items-center">
-                <img
+                <Image
                   src={photo.images.medium.url}
                   alt={photo.caption}
                   className="rounded-md w-full object-cover h-40 mb-2"
+                  height={200}
+                  width={200}
                 />
                 {photo.caption && (
                   <p className="text-sm text-gray-500 text-center">

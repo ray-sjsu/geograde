@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import React from 'react';
 
 const SearchResults = ({ results }) => {
@@ -16,10 +17,12 @@ const SearchResults = ({ results }) => {
 
           {location.photos && location.photos.length > 0 && (
             <div className="mb-4">
-              <img
+              <Image
                 src={location.photos[0].images.medium.url}
                 alt={location.photos[0].caption || location.name}
                 className="rounded-md w-full object-cover h-40"
+                height={200}
+                width={200}
               />
             </div>
           )}
