@@ -1,40 +1,48 @@
-import React from "react";
+// Navbar.jsx
+"use client";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import ClientAuthMenu from "/components/ClientAuthMenu";
+import SearchBox from "./SearchBox"; // Import your custom SearchBox component
+import ClientAuthMenu from "./ClientAuthMenu";
 
 const Navbar = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [coordinates, setCoordinates] = useState(""); // For storing lat/long
+  const router = useRouter();
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    router.push(
+      `/browse?searchQuery=${encodeURIComponent(searchQuery)}&coordinates=${encodeURIComponent(coordinates)}`
+    );
+  };
+
   return (
     <div className="navbar bg-base-300 sticky top-0 h-20 shadow-md z-10">
       <div className="flex justify-between container mx-auto px-4 h-full">
-        {/* Logo redirects to Home */}
+        {/* Logo */}
         <div className="flex items-center">
           <Link href="/">
-            <button className="text-lg font-bold">Logo</button> {/* Replace with Logo component if available */}
+            <button className="text-lg font-bold">Logo</button>
           </Link>
         </div>
 
-        {/* Centered Search Bars */}
-        <div className="flex space-x-4">
-          {/* Search Bar for Places */}
-          <div className="form-control">
-            <input
-              type="text"
-              placeholder="Search places"
-              className="input input-bordered w-24 md:w-auto text-base-content"
-            />
-          </div>
+        {/* Search Query Field */}
+        <form onSubmit={handleSearchSubmit} className="form-control">
+          <input
+            type="text"
+            placeholder="Search places"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="input input-bordered w-full md:w-auto"
+          />
+        </form>
 
-          {/* Search Bar for Location/ZIP Code */}
-          <div className="form-control">
-            <input
-              type="text"
-              placeholder="ZIP Code"
-              className="input input-bordered w-24 md:w-auto text-base-content"
-            />
-          </div>
-        </div>
+        {/* Coordinates Field */}
+        <SearchBox setCoordinates={setCoordinates} /> {/* Custom component */}
 
-        {/* Avatar and Dropdown Menu (always on the right) */}
+        {/* Client Auth Menu */}
         <ClientAuthMenu />
       </div>
     </div>

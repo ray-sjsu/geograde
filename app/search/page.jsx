@@ -1,6 +1,6 @@
 "use client";
-import SearchInputs from "@/components/search/SearchInputs";
-import SearchResults from "@/components/search/SearchResults";
+import SearchInputs from "/components/search/SearchInputs";
+import SearchResults from "/components/search/SearchResults";
 import {
   DEFAULT_LANGUAGE,
   DEFAULT_LAT_LONG,
@@ -11,14 +11,14 @@ import {
   DEFAULT_SEARCH_LIMIT,
   DEFAULT_SEARCH_QUERY,
   DEFAULT_CATEGORY,
-} from "@/lib/tripadvisor-api/constants";
+} from "/lib/tripadvisor-api/constants";
 import React, { useState } from "react";
 
 const searchForLocationAPI = async (params) => {
   try {
     const queryString = new URLSearchParams(params).toString();
     const response = await fetch(
-      `/api/locations/simplified/search?${queryString}`
+      `/api/locations/simplified/search?${queryString}` 
     );
     if (!response.ok) {
       throw new Error("Failed to fetch data from the API");
