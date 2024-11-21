@@ -6,7 +6,8 @@ import {
   DEFAULT_LANGUAGE,
   DEFAULT_PHOTO_LIMIT,
   DEFAULT_PHOTO_OFFSET,
-} from "@/lib/tripadvisor-api/constants";
+} from "/lib/tripadvisor-api/constants";
+import Reviews from "/components/Reviews"; // Import the Reviews component
 
 const locationDetailsAPI = async (locationId, params) => {
   try {
@@ -83,7 +84,7 @@ const LocationDetailsPage = ({ params }) => {
   const { overview, photos } = locationData;
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen bg-base-100 p-6">
       <div className="bg-white shadow-lg rounded-lg p-6 max-w-3xl mx-auto">
         {/* Location Header */}
         <h1 className="text-3xl font-bold text-gray-800 mb-2">
@@ -121,7 +122,8 @@ const LocationDetailsPage = ({ params }) => {
         {/* Address and Contact Info */}
         <div className="mb-6">
           <p className="text-gray-600">
-            <strong>Address:</strong> {overview?.address_obj?.address_string || "No address available"}
+            <strong>Address:</strong>{" "}
+            {overview?.address_obj?.address_string || "No address available"}
           </p>
           {overview?.phone && (
             <p className="text-gray-600">
@@ -152,9 +154,6 @@ const LocationDetailsPage = ({ params }) => {
             )) || <p>No features available</p>}
           </ul>
         </div>
-
-        {/* Other Details (Photos, Hours, Cuisine) */}
-        {/* Similar structure as above to ensure rendering only if available */}
 
         {/* Photos */}
         {photos?.data?.length > 0 && (
@@ -188,6 +187,11 @@ const LocationDetailsPage = ({ params }) => {
             </p>
           </div>
         )}
+      </div>
+
+      {/* Reviews Section */}
+      <div className="mt-8">
+        <Reviews locationId={locationId} />
       </div>
     </div>
   );

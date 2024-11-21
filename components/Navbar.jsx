@@ -1,4 +1,3 @@
-// Navbar.jsx
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -14,13 +13,13 @@ const Navbar = () => {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     router.push(
-      `/browse?searchQuery=${encodeURIComponent(searchQuery)}&coordinates=${encodeURIComponent(coordinates)}`
+      `/search?searchQuery=${encodeURIComponent(searchQuery)}&coordinates=${encodeURIComponent(coordinates)}`
     );
   };
 
   return (
     <div className="navbar bg-base-300 sticky top-0 h-20 shadow-md z-10">
-      <div className="flex justify-between container mx-auto px-4 h-full">
+      <div className="flex justify-between items-center container mx-auto px-4 h-full">
         {/* Logo */}
         <div className="flex items-center">
           <Link href="/">
@@ -28,22 +27,36 @@ const Navbar = () => {
           </Link>
         </div>
 
-        {/* Search Query Field */}
-        <form onSubmit={handleSearchSubmit} className="form-control">
-          <input
-            type="text"
-            placeholder="Search places"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="input input-bordered w-full md:w-auto"
-          />
-        </form>
+        {/* Centered Search Fields */}
+        <div className="flex flex-grow justify-center items-center space-x-4">
+          {/* Search Query Field */}
+          <form onSubmit={handleSearchSubmit} className="w-full max-w-md">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Keyword"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-2 rounded-sm bg-white text-gray-700 placeholder-gray-400"
+                style={{ 
+                  height: "36px",
+                  borderRadius:"4px",
+                }}
 
-        {/* Coordinates Field */}
-        <SearchBox setCoordinates={setCoordinates} /> {/* Custom component */}
+              />
+            </div>
+          </form>
+
+          {/* Coordinates Field */}
+          <div className="w-full max-w-md">
+            <SearchBox setCoordinates={setCoordinates} />
+          </div>
+        </div>
 
         {/* Client Auth Menu */}
-        <ClientAuthMenu />
+        <div className="flex items-center">
+          <ClientAuthMenu />
+        </div>
       </div>
     </div>
   );

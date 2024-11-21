@@ -1,7 +1,7 @@
 import localFont from "next/font/local";
 import "./globals.css";
 import { Inter } from "next/font/google";
-import Navbar from "/components/Navbar"
+import Navbar from "/components/Navbar";
 import Footer from "/components/Footer";
 import { CoordinatesProvider } from "/components/CoordinatesContext";
 

@@ -1,39 +1,35 @@
-// Reviews.jsx
 "use client";
 import React, { useState, useEffect } from "react";
 import { firestore, auth } from "/app/firebase/config";
-import { collection, getDocs, setDoc, deleteDoc, doc, Timestamp } from "firebase/firestore";
+import { collection, query, where, getDocs, setDoc, deleteDoc, doc, Timestamp } from "firebase/firestore";
 
-export default function Reviews({ setAverageRating, setReviewCount }) {
+export default function Reviews({ locationId, setAverageRating, setReviewCount }) {
   const [reviews, setReviews] = useState([]);
   const [open, setOpen] = useState(false);
   const [reviewText, setReviewText] = useState("");
   const [reviewRating, setReviewRating] = useState(5);
   const [user, setUser] = useState(null);
-  const [userEmail, setUserEmail] = useState(null);
   const [noiseLevel, setNoiseLevel] = useState(3);
-
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-        setUserEmail(currentUser.email);
-      } else {
-        setUser(null);
-        setUserEmail(null);
-      }
+      setUser(currentUser);
     });
     return () => unsubscribe();
   }, []);
 
   const fetchReviews = async () => {
+    if (!locationId) return;
+
     const reviewsCollection = collection(firestore, "reviews");
-    const reviewSnapshot = await getDocs(reviewsCollection);
+    const reviewsQuery = query(reviewsCollection, where("locationId", "==", locationId));
+    const reviewSnapshot = await getDocs(reviewsQuery);
+
     const reviewsList = reviewSnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
+
     setReviews(reviewsList);
 
     // Calculate average rating and count
@@ -41,9 +37,9 @@ export default function Reviews({ setAverageRating, setReviewCount }) {
     const reviewCount = reviewsList.length;
     const average = reviewCount > 0 ? totalRating / reviewCount : 0;
 
-    // Pass data up to LocationPage
-    setAverageRating(average);
-    setReviewCount(reviewCount);
+    // Pass data up to LocationPage if necessary
+    if (setAverageRating) setAverageRating(average);
+    if (setReviewCount) setReviewCount(reviewCount);
   };
 
   const addReview = async () => {
@@ -52,39 +48,40 @@ export default function Reviews({ setAverageRating, setReviewCount }) {
     const newReview = {
       textContent: reviewText,
       rating: reviewRating,
-      noiseLevel: noiseLevel, // Include noise level in review
+      noiseLevel: noiseLevel,
       userID: user.uid,
-      userEmail: userEmail,
+      userEmail: user.email,
       date: Timestamp.now(),
+      locationId, // Link review to the location
     };
 
-    const newDocRef = doc(collection(firestore, "reviews"), `${Date.now()}`);
-    await setDoc(newDocRef, newReview);
+    await setDoc(doc(collection(firestore, "reviews"), `${Date.now()}`), newReview);
+
     setReviewText("");
     setReviewRating(5);
-    setNoiseLevel(3); // Reset noise level after submission
+    setNoiseLevel(3);
     setOpen(false);
-    fetchReviews();
+    fetchReviews(); // Refresh reviews
   };
 
   const removeReview = async (id) => {
-    const docRef = doc(collection(firestore, "reviews"), id);
-    await deleteDoc(docRef);
+    await deleteDoc(doc(collection(firestore, "reviews"), id));
     fetchReviews();
   };
 
   const handleRatingChange = (rating) => {
     setReviewRating(rating);
   };
+
   const handleNoiseLevelChange = (event) => {
     setNoiseLevel(event.target.value);
   };
 
   useEffect(() => {
     fetchReviews();
-  }, []);
+  }, [locationId]);
 
-   return (
+  return (
     <div className="w-full max-w-4xl space-y-4 overflow-auto">
       <h1 className="text-3xl font-bold mb-4 text-center">Reviews for This Location</h1>
       {user ? (
@@ -150,7 +147,7 @@ export default function Reviews({ setAverageRating, setReviewCount }) {
         </dialog>
       )}
 
-      {reviews.map(({ id, rating, noiseLevel, textContent, userID, userEmail, date }) => (
+      {reviews.map(({ id, rating, noiseLevel, textContent, userEmail, date }) => (
         <div key={id} className="card bg-neutral shadow-lg w-full">
           <div className="card-body">
             <div className="flex justify-between items-center">
@@ -173,7 +170,7 @@ export default function Reviews({ setAverageRating, setReviewCount }) {
                   })
                 : "N/A"}
             </div>
-            {user && user.uid === userID && (
+            {user && user.uid === userEmail && (
               <div className="card-actions justify-end">
                 <button
                   className="btn btn-outline btn-error"
@@ -186,76 +183,6 @@ export default function Reviews({ setAverageRating, setReviewCount }) {
           </div>
         </div>
       ))}
-    </div>
-  );
-}
-
-export function StarRatingDisplay({ rating, reviewCount }) {
-  const fullStars = Math.floor(rating);
-  const hasHalfStar = rating - fullStars >= 0.5;
-
-  return (
-    <div className="flex items-center space-x-1">
-      <div className="rating rating-lg rating-half">
-        {[...Array(5)].map((_, index) => {
-          if (index < fullStars) {
-            return (
-              <React.Fragment key={`${index}-full`}>
-                <input
-                  type="radio"
-                  name="rating-display"
-                  className="mask mask-star-2 mask-half-1 bg-yellow-500"
-                  checked
-                  readOnly
-                />
-                <input
-                  type="radio"
-                  name="rating-display"
-                  className="mask mask-star-2 mask-half-2 bg-yellow-500"
-                  checked
-                  readOnly
-                />
-              </React.Fragment>
-            );
-          } else if (index === fullStars && hasHalfStar) {
-            return (
-              <React.Fragment key={`${index}-half`}>
-                <input
-                  type="radio"
-                  name="rating-display"
-                  className="mask mask-star-2 mask-half-1 bg-yellow-500"
-                  checked
-                  readOnly
-                />
-                <input
-                  type="radio"
-                  name="rating-display"
-                  className="mask mask-star-2 mask-half-2 bg-yellow-500"
-                  readOnly
-                />
-              </React.Fragment>
-            );
-          } else {
-            return (
-              <React.Fragment key={`${index}-empty`}>
-                <input
-                  type="radio"
-                  name="rating-display"
-                  className="mask mask-star-2 mask-half-1"
-                  readOnly
-                />
-                <input
-                  type="radio"
-                  name="rating-display"
-                  className="mask mask-star-2 mask-half-2"
-                  readOnly
-                />
-              </React.Fragment>
-            );
-          }
-        })}
-      </div>
-      <span className="text-lg font-semibold">{rating.toFixed(1)} ({reviewCount} reviews)</span>
     </div>
   );
 }

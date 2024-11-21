@@ -1,4 +1,3 @@
-// SearchBox.jsx
 "use client";
 import React, { useRef, useEffect } from "react";
 import mapboxgl from "mapbox-gl";
@@ -23,12 +22,27 @@ const SearchBox = () => {
       const geocoder = new MapboxGeocoder({
         accessToken: mapboxgl.accessToken,
         types: "country,region,place,postcode,locality,neighborhood",
-        placeholder: "Location",
+        placeholder: "Search for a location...",
       });
+
       geocoderRef.current = geocoder;
 
+      // Add Geocoder to the container
       geocoder.addTo(geocoderContainerRef.current);
 
+      // Style adjustments for the Geocoder
+      const geocoderInput = geocoderContainerRef.current.querySelector(".mapboxgl-ctrl-geocoder input");
+      const geocoderContainer = geocoderContainerRef.current.querySelector(".mapboxgl-ctrl-geocoder");
+
+      if (geocoderInput) {
+        geocoderInput.classList.add("input", "input-bordered", "w-full", "max-w-xs");
+      }
+
+      if (geocoderContainer) {
+        geocoderContainer.classList.add("bg-base-200", "rounded-lg", "shadow");
+      }
+
+      // Handle events
       geocoder.on("result", (e) => {
         const [longitude, latitude] = e.result.center;
         setCoordinates({ latitude, longitude });
@@ -42,16 +56,18 @@ const SearchBox = () => {
     }
 
     return () => {
-      // Cleanup geocoder on unmount
+      // Cleanup on component unmount
       if (geocoderRef.current) {
-        geocoderRef.current.clear(); // Clear the geocoder instance
-        geocoderContainerRef.current.innerHTML = ""; // Clear container
-        geocoderRef.current = null; // Reset the ref
+        geocoderRef.current.clear();
+        if (geocoderContainerRef.current) {
+          geocoderContainerRef.current.innerHTML = ""; // Clear container
+        }
+        geocoderRef.current = null;
       }
     };
   }, [setCoordinates]);
 
-  return <div ref={geocoderContainerRef} className="w-full"></div>;
+  return <div ref={geocoderContainerRef} className="flex items-center"></div>;
 };
 
 export default SearchBox;
