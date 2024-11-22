@@ -1,11 +1,11 @@
 "use client";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "@/app/firebase/config";
+import { auth } from "/app/firebase/config";
 import { useRouter } from "next/navigation";
-import { loginWithGooglePopup } from "@/lib/auth/loginWithGooglePopup";
+import { loginWithGooglePopup } from "/lib/auth/loginWithGooglePopup";
 import Image from "next/image";
 import { useEffect } from "react";
-import { URL_PROFILE } from "@/lib/CONSTANTS";
+import { URL_PROFILE } from "/lib/CONSTANTS";
 
 const SignIn = () => {
   const [user, loading, error] = useAuthState(auth);
