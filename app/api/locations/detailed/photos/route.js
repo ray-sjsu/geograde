@@ -2,12 +2,12 @@ import {
   TRIPADVISOR_API_KEY,
   API_LOCATION_DETAILS_PHOTOS_URL,
   TRIPADVISOR_API_OPTIONS,
-} from "@/lib/tripadvisor-api/api-setup";
+} from "/lib/tripadvisor-api/api-setup";
 import {
   DEFAULT_LANGUAGE,
   DEFAULT_PHOTO_LIMIT,
   DEFAULT_PHOTO_OFFSET,
-} from "@/lib/tripadvisor-api/constants";
+} from "/lib/tripadvisor-api/constants";
 
 function validateSearchParams(searchParams) {
   // Required, but provided default value

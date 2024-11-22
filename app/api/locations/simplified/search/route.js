@@ -3,15 +3,15 @@ import {
   API_CUSTOM_LOCATION_SEARCH_URL,
   API_CUSTOM_LOCATION_PHOTOS_URL,
   APP_BASE_URL,
-} from "@/lib/tripadvisor-api/api-setup";
+} from "/lib/tripadvisor-api/api-setup";
 import {
   DEFAULT_LANGUAGE,
   DEFAULT_RADIUS_UNIT,
   DEFAULT_PHOTO_LIMIT,
   DEFAULT_PHOTO_OFFSET,
   DEFAULT_SEARCH_LIMIT,
-} from "@/lib/tripadvisor-api/constants";
-import { isUriEncoded } from "@/lib/tripadvisor-api/utility";
+} from "/lib/tripadvisor-api/constants.js";
+import { isUriEncoded } from "/lib/tripadvisor-api/utility";
 
 function validateSearchParams(searchParams) {
   // Required, but provided default value
