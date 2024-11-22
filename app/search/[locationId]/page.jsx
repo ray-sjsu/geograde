@@ -7,7 +7,6 @@ import {
   DEFAULT_PHOTO_LIMIT,
   DEFAULT_PHOTO_OFFSET,
 } from "/lib/tripadvisor-api/constants";
-import Image from "next/image";
 import Reviews from "/components/Reviews"; // Import the Reviews component
 
 const locationDetailsAPI = async (locationId, params) => {

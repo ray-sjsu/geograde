@@ -8,7 +8,7 @@ import {
 import { auth } from "@/app/firebase/config";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { loginWithGooglePopup } from "@/lib/auth/loginWithGooglePopup";
+import { loginWithGooglePopup } from "/lib/auth/loginWithGooglePopup";
 import Image from "next/image";
 
 const SignIn = () => {
