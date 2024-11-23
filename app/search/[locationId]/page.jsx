@@ -8,6 +8,7 @@ import {
   DEFAULT_PHOTO_OFFSET,
 } from "@/lib/tripadvisor-api/constants";
 import Image from "next/image";
+import Reviews from "@/components/Reviews";
 
 const locationDetailsAPI = async (locationId, params) => {
   try {
@@ -228,6 +229,11 @@ const LocationDetailsPage = ({ params }) => {
               See all photos on TripAdvisor
             </a>
           </p>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="mt-8">
+          <Reviews locationId={locationId} />
         </div>
       </div>
     </div>
