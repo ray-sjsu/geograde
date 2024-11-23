@@ -13,7 +13,7 @@ const SignIn = () => {
 
   useEffect(() => {
     if (user) {
-      console.log("Redirecting to home page...");
+      console.log("Redirecting to profile page...");
       router.push(URL_PROFILE);
     }
   }, [user, router]);
