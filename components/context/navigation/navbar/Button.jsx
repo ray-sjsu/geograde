@@ -1,4 +1,5 @@
 "use client"; 
+import { URL_PROFILE } from '@/lib/CONSTANTS';
 import { useRouter } from 'next/navigation';
 
 //
@@ -9,7 +10,7 @@ const Button = () => {
   const router = useRouter();
 
   const handleClick = () => {
-    router.push('/sign-in'); //redirect to sign-in but update later to be logout
+    router.push(URL_PROFILE); //redirect to sign-in but update later to be logout
   };
 
   return (
