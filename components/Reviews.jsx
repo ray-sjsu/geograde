@@ -5,15 +5,23 @@ import { collection, query, where, getDocs, setDoc, deleteDoc, doc, Timestamp } 
 
 export default function Reviews({ locationId, setAverageRating, setReviewCount }) {
   const [reviews, setReviews] = useState([]);
+  const [userReview, setUserReview] = useState(null); // The user's review for this location
   const [open, setOpen] = useState(false);
   const [reviewText, setReviewText] = useState("");
   const [reviewRating, setReviewRating] = useState(5);
+  const [noiseLevel, setNoiseLevel] = useState(3); // Noise level rating
   const [user, setUser] = useState(null);
-  const [noiseLevel, setNoiseLevel] = useState(3);
+  const [userEmail, setUserEmail] = useState(null);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
-      setUser(currentUser);
+      if (currentUser) {
+        setUser(currentUser);
+        setUserEmail(currentUser.email);
+      } else {
+        setUser(null);
+        setUserEmail(null);
+      }
     });
     return () => unsubscribe();
   }, []);
@@ -21,52 +29,66 @@ export default function Reviews({ locationId, setAverageRating, setReviewCount }
   const fetchReviews = async () => {
     if (!locationId) return;
 
+    // Query reviews for the specific locationId
     const reviewsCollection = collection(firestore, "reviews");
-    const reviewsQuery = query(reviewsCollection, where("locationId", "==", locationId));
-    const reviewSnapshot = await getDocs(reviewsQuery);
-
+    const q = query(reviewsCollection, where("locationId", "==", locationId));
+    const reviewSnapshot = await getDocs(q);
     const reviewsList = reviewSnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
-
     setReviews(reviewsList);
+
+    // Check if the current user has a review for this location
+    if (user) {
+      const userReview = reviewsList.find((review) => review.userID === user.uid);
+      setUserReview(userReview || null);
+      if (userReview) {
+        setReviewText(userReview.textContent);
+        setReviewRating(userReview.rating);
+        setNoiseLevel(userReview.noiseLevel);
+      }
+    }
 
     // Calculate average rating and count
     const totalRating = reviewsList.reduce((sum, review) => sum + review.rating, 0);
     const reviewCount = reviewsList.length;
     const average = reviewCount > 0 ? totalRating / reviewCount : 0;
 
-    // Pass data up to LocationPage if necessary
-    if (setAverageRating) setAverageRating(average);
-    if (setReviewCount) setReviewCount(reviewCount);
+    // Pass data up to LocationPage
+    setAverageRating(average);
+    setReviewCount(reviewCount);
   };
 
-  const addReview = async () => {
-    if (!user) return;
+  const saveReview = async () => {
+    if (!user || !locationId) return;
 
-    const newReview = {
+    const reviewData = {
       textContent: reviewText,
       rating: reviewRating,
-      noiseLevel: noiseLevel,
+      noiseLevel, // Include noise level in review
+      locationId, // Attach the locationId to the review
       userID: user.uid,
-      userEmail: user.email,
+      userEmail: userEmail,
       date: Timestamp.now(),
-      locationId, // Link review to the location
     };
 
-    await setDoc(doc(collection(firestore, "reviews"), `${Date.now()}`), newReview);
+    const reviewDocRef = userReview
+      ? doc(firestore, "reviews", userReview.id) // Update existing review
+      : doc(collection(firestore, "reviews"), `${user.uid}_${locationId}`); // New review ID pattern
 
-    setReviewText("");
-    setReviewRating(5);
-    setNoiseLevel(3);
+    await setDoc(reviewDocRef, reviewData);
     setOpen(false);
-    fetchReviews(); // Refresh reviews
+    fetchReviews(); // Refresh reviews for the current location
   };
 
-  const removeReview = async (id) => {
-    await deleteDoc(doc(collection(firestore, "reviews"), id));
-    fetchReviews();
+  const removeReview = async () => {
+    if (!user || !userReview) return;
+
+    const reviewDocRef = doc(firestore, "reviews", userReview.id);
+    await deleteDoc(reviewDocRef);
+    setUserReview(null); // Clear user's review state
+    fetchReviews(); // Refresh reviews for the current location
   };
 
   const handleRatingChange = (rating) => {
@@ -74,29 +96,45 @@ export default function Reviews({ locationId, setAverageRating, setReviewCount }
   };
 
   const handleNoiseLevelChange = (event) => {
-    setNoiseLevel(event.target.value);
+    setNoiseLevel(event.target.value); // Update noise level state
   };
 
   useEffect(() => {
     fetchReviews();
-  }, [locationId]);
+  }, [locationId, user]);
 
   return (
     <div className="w-full max-w-4xl space-y-4 overflow-auto">
-      <h1 className="text-3xl font-bold mb-4 text-center">Reviews for This Location</h1>
-      {user ? (
-        <button className="btn btn-primary mb-4" onClick={() => setOpen(true)}>
-          Write a Review
-        </button>
+      <h1 className="text-3xl font-bold mb-4 text-base-content">Reviews</h1>
+
+      {user && userReview ? (
+        <div className="flex justify-between">
+          <button
+            className="btn btn-primary"
+            onClick={() => {
+              setOpen(true); // Open the modal to edit the review
+            }}
+          >
+            Edit Your Review
+          </button>
+          <button className="btn btn-error" onClick={removeReview}>
+            Delete Your Review
+          </button>
+        </div>
       ) : (
-        <p className="text-red-500 mb-4">Please sign in to write a review.</p>
+        user && (
+          <button className="btn btn-primary mb-4" onClick={() => setOpen(true)}>
+            Write a Review
+          </button>
+        )
       )}
 
       {open && (
         <dialog id="review_modal" className="modal modal-open">
-          <form method="dialog" className="modal-box">
-            <h3 className="font-bold text-lg">Write a review</h3>
+          <form method="dialog" className="modal-box text-base-content">
+            <h3 className="font-bold text-lg">{userReview ? "Edit Your Review" : "Write a Review"}</h3>
 
+            {/* Star Rating */}
             <div className="rating mb-4">
               {[1, 2, 3, 4, 5].map((value) => (
                 <input
@@ -111,6 +149,7 @@ export default function Reviews({ locationId, setAverageRating, setReviewCount }
               ))}
             </div>
 
+            {/* Noise Level Selection */}
             <label className="label">Noise Level: {noiseLevel}/5</label>
             <input
               type="range"
@@ -129,6 +168,7 @@ export default function Reviews({ locationId, setAverageRating, setReviewCount }
               <span>5</span>
             </div>
 
+            {/* Review Text */}
             <label className="label">Review:</label>
             <textarea
               className="textarea textarea-bordered w-full mb-4"
@@ -136,11 +176,12 @@ export default function Reviews({ locationId, setAverageRating, setReviewCount }
               onChange={(e) => setReviewText(e.target.value)}
               placeholder="Type your review here..."
             ></textarea>
-
             <div className="modal-action">
-              <button className="btn" onClick={() => setOpen(false)}>Cancel</button>
-              <button type="button" className="btn btn-primary" onClick={addReview}>
-                Post Review
+              <button className="btn" onClick={() => setOpen(false)}>
+                Cancel
+              </button>
+              <button type="button" className="btn btn-primary" onClick={saveReview}>
+                {userReview ? "Update Review" : "Post Review"}
               </button>
             </div>
           </form>
@@ -170,16 +211,6 @@ export default function Reviews({ locationId, setAverageRating, setReviewCount }
                   })
                 : "N/A"}
             </div>
-            {user && user.uid === userEmail && (
-              <div className="card-actions justify-end">
-                <button
-                  className="btn btn-outline btn-error"
-                  onClick={() => removeReview(id)}
-                >
-                  Delete Review
-                </button>
-              </div>
-            )}
           </div>
         </div>
       ))}

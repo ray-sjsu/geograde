@@ -6,9 +6,12 @@ import {
   DEFAULT_LANGUAGE,
   DEFAULT_PHOTO_LIMIT,
   DEFAULT_PHOTO_OFFSET,
-} from "@/lib/tripadvisor-api/constants";
+} from "/lib/tripadvisor-api/constants";
 import Image from "next/image";
-import Reviews from "@/components/Reviews";
+import Reviews from "/components/Reviews";
+import FavoriteButton from "/components/FavoriteButton";
+import StarRatingDisplay from "/components/StarRatingDisplay";
+
 
 const locationDetailsAPI = async (locationId, params) => {
   try {
@@ -33,6 +36,9 @@ const LocationDetailsPage = ({ params }) => {
 
   const [locationData, setLocationData] = useState(null);
   const [error, setError] = useState(null);
+
+  const [averageRating, setAverageRating] = useState(0);
+  const [reviewCount, setReviewCount] = useState(0);
 
   useEffect(() => {
     const fetchLocationDetails = async () => {
@@ -85,15 +91,16 @@ const LocationDetailsPage = ({ params }) => {
   const { overview, photos } = locationData;
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="bg-white shadow-lg rounded-lg p-6 max-w-3xl mx-auto">
+    <div className="min-h-screen bg-base-100 p-6">
+      <div>
         {/* Location Header */}
         <h1 className="text-3xl font-bold text-gray-800 mb-2">
-          {overview.name}
+          {overview?.name || "Unknown Location"}
         </h1>
+        
         <p className="text-sm text-gray-500 mb-4">
           <a
-            href={overview.web_url}
+            href={overview?.web_url}
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-500 underline"
@@ -101,34 +108,24 @@ const LocationDetailsPage = ({ params }) => {
             View on TripAdvisor
           </a>
         </p>
-        <p className="text-gray-600 mb-4">
-          {overview.ranking_data?.ranking_string}
-        </p>
 
         {/* Rating and Reviews */}
         <div className="flex items-center mb-4">
-          <Image
-            src={overview.rating_image_url}
-            alt="Rating"
-            className="w-6 h-6 mr-2"
-            width={200}
-            height={200}
-          />
-          <p className="text-gray-700">{overview.rating} / 5</p>
-          <p className="ml-2 text-gray-500">({overview.num_reviews} reviews)</p>
+          <StarRatingDisplay rating={averageRating} reviewCount={reviewCount} />
         </div>
 
         {/* Address and Contact Info */}
         <div className="mb-6">
           <p className="text-gray-600">
-            <strong>Address:</strong> {overview.address_obj.address_string}
+            <strong>Address:</strong>{" "}
+            {overview?.address_obj?.address_string || "No address available"}
           </p>
-          {overview.phone && (
+          {overview?.phone && (
             <p className="text-gray-600">
               <strong>Phone:</strong> {overview.phone}
             </p>
           )}
-          {overview.website && (
+          {overview?.website && (
             <p className="text-gray-600">
               <strong>Website:</strong>{" "}
               <a
@@ -141,70 +138,21 @@ const LocationDetailsPage = ({ params }) => {
               </a>
             </p>
           )}
+                  {/* Favorite Button */}
+        <FavoriteButton
+          locationId={locationId}
+          locationName={overview?.name || "Unknown Location"}
+        />
+        
         </div>
-
-        {/* Features */}
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Features</h2>
-          <ul className="list-disc list-inside text-gray-600">
-            {overview.features?.map((feature, index) => (
-              <li key={index}>{feature}</li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Opening Hours */}
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">
-            Opening Hours
-          </h2>
-          <ul className="text-gray-600">
-            {overview.hours?.weekday_text.map((day, index) => (
-              <li key={index}>{day}</li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Cuisine */}
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Cuisine</h2>
-          <p className="text-gray-600">
-            {overview.cuisine
-              ?.map((cuisine) => cuisine.localized_name)
-              .join(", ")}
-          </p>
-        </div>
-
-        {/* Subratings */}
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">
-            Subratings
-          </h2>
-          <div className="grid grid-cols-2 gap-4">
-            {Object.values(overview.subratings).map((subrating, index) => (
-              <div key={index} className="flex items-center">
-                <Image
-                  src={subrating.rating_image_url}
-                  alt={`${subrating.localized_name} Rating`}
-                  className="w-6 h-6 mr-2"
-                  height={200}
-                  width={200}
-                />
-                <p className="text-gray-700">
-                  {subrating.localized_name}: {subrating.value} / 5
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Photos */}
-        <div className="mb-6">
+                {/* Photos */}
+                <div className="mb-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-2">Photos</h2>
           <div className="grid grid-cols-2 gap-4">
             {photos.data?.map((photo) => (
               <div key={photo.id} className="flex flex-col items-center">
                 <Image
+                  
                   src={photo.images.medium.url}
                   alt={photo.caption}
                   className="rounded-md w-full object-cover h-40 mb-2"
@@ -231,9 +179,23 @@ const LocationDetailsPage = ({ params }) => {
           </p>
         </div>
 
+        {/* Features */}
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Features</h2>
+          <ul className="list-disc list-inside text-gray-600">
+            {overview?.features?.map((feature, index) => (
+              <li key={index}>{feature}</li>
+            )) || <p>No features available</p>}
+          </ul>
+        </div>
+
         {/* Reviews Section */}
         <div className="mt-8">
-          <Reviews locationId={locationId} />
+        <Reviews
+          locationId={locationId}
+          setAverageRating={setAverageRating}
+          setReviewCount={setReviewCount}
+        />
         </div>
       </div>
     </div>

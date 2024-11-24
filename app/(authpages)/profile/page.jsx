@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { auth } from "@/app/firebase/config";
 import React, { useEffect } from 'react'
 import { useAuthState } from 'react-firebase-hooks/auth';
+import FavoritesList from '/components/FavoritesList';
 
 const ProfilePage = () => {
   const [user, loading, error] = useAuthState(auth);
@@ -19,7 +20,9 @@ const ProfilePage = () => {
 
   return (
     <div>
-      <h1>Profile Page</h1>
+        <div className="min-h-screen bg-base-100 p-6">
+          <FavoritesList /> 
+        </div>
       <SignOutButton/>
     </div>
   )
