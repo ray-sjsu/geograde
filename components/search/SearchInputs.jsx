@@ -1,7 +1,24 @@
-import React from "react";
+"use client"
+
+import React, {useEffect} from "react";
+import { useCoordinates, CoordinatesContext } from "/components/CoordinatesContext";
 
 const SearchInputs = ({ formData, handleChange }) => {
+
+  const { coordinates } = useCoordinates(CoordinatesContext);
+
+  // Format the coordinates into "latitude,longitude" string format
+  const formattedLatLong = coordinates
+    ? `${coordinates.latitude},${coordinates.longitude}`
+    : "";
+
+  // Update the latLong field in formData when coordinates change
+  useEffect(() => {
+    handleChange({ target: { name: "latLong", value: formattedLatLong } });
+  }, [formattedLatLong, handleChange]);
+
   return (
+    
     <div>
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-700 mb-4">
@@ -13,20 +30,6 @@ const SearchInputs = ({ formData, handleChange }) => {
         </p>
         <div className="space-y-4">
           <label className="block">
-            <span className="text-gray-600">Latitude and Longitude</span>
-            <span className="text-sm text-gray-500 block">
-              Latitude/Longitude pair to narrow the search to a specific area.
-              These coordinates are the middle of San Jose State University.
-            </span>
-            <input
-              type="text"
-              name="latLong"
-              value={formData.latLong}
-              onChange={handleChange}
-              className="mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
-            />
-          </label>
-          <label className="block">
             <span className="text-gray-600">Search Query</span>
             <span className="text-sm text-gray-500 block">
               Text to search by location name (e.g., &quot;Coffee,&quot;
@@ -37,7 +40,7 @@ const SearchInputs = ({ formData, handleChange }) => {
               name="searchQuery"
               value={formData.searchQuery}
               onChange={handleChange}
-              className="mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
+              className="text-base-content mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
             />
           </label>
         </div>
@@ -59,7 +62,7 @@ const SearchInputs = ({ formData, handleChange }) => {
               name="category"
               value={formData.category}
               onChange={handleChange}
-              className="mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
+              className="text-base-content mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
             >
               <option value="">Select category (optional)</option>
               <option value="hotels">Hotels</option>
@@ -80,7 +83,7 @@ const SearchInputs = ({ formData, handleChange }) => {
               name="phone"
               value={formData.phone}
               onChange={handleChange}
-              className="mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
+              className="text-base-content mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
             />
           </label>
 
@@ -94,7 +97,7 @@ const SearchInputs = ({ formData, handleChange }) => {
               name="address"
               value={formData.address}
               onChange={handleChange}
-              className="mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
+              className="text-base-content mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
             />
           </label>
 
@@ -108,7 +111,7 @@ const SearchInputs = ({ formData, handleChange }) => {
               name="radius"
               value={formData.radius}
               onChange={handleChange}
-              className="mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
+              className="text-base-content mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
             />
           </label>
 
@@ -122,7 +125,7 @@ const SearchInputs = ({ formData, handleChange }) => {
               name="radiusUnit"
               value={formData.radiusUnit}
               onChange={handleChange}
-              className="mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
+              className="text-base-content mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
             >
               <option value="">Select unit</option>
               <option value="km">Kilometers</option>
@@ -141,7 +144,7 @@ const SearchInputs = ({ formData, handleChange }) => {
               name="language"
               value={formData.language}
               onChange={handleChange}
-              className="mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
+              className="text-base-content mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
             >
               <option value="">Select language</option>
               <option value="en">English</option>
@@ -162,7 +165,7 @@ const SearchInputs = ({ formData, handleChange }) => {
               name="searchLimit"
               value={formData.searchLimit}
               onChange={handleChange}
-              className="mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
+              className="text-base-content mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
             />
           </label>
         </div>
@@ -181,7 +184,7 @@ const SearchInputs = ({ formData, handleChange }) => {
               name="limit"
               value={formData.limit}
               onChange={handleChange}
-              className="mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
+              className="text-base-content mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
             />
           </label>
 
@@ -195,7 +198,7 @@ const SearchInputs = ({ formData, handleChange }) => {
               name="offset"
               value={formData.offset}
               onChange={handleChange}
-              className="mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
+              className="text-base-content mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
             />
           </label>
         </div>
