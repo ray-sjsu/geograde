@@ -6,9 +6,12 @@ import {
   DEFAULT_LANGUAGE,
   DEFAULT_PHOTO_LIMIT,
   DEFAULT_PHOTO_OFFSET,
-} from "@/lib/tripadvisor-api/constants";
+} from "/lib/tripadvisor-api/constants";
 import Image from "next/image";
-import Reviews from "@/components/Reviews";
+import Reviews from "/components/Reviews";
+import FavoriteButton from "/components/FavoriteButton";
+import StarRatingDisplay from "/components/StarRatingDisplay";
+
 
 const locationDetailsAPI = async (locationId, params) => {
   try {
@@ -33,6 +36,9 @@ const LocationDetailsPage = ({ params }) => {
 
   const [locationData, setLocationData] = useState(null);
   const [error, setError] = useState(null);
+
+  const [averageRating, setAverageRating] = useState(0);
+  const [reviewCount, setReviewCount] = useState(0);
 
   useEffect(() => {
     const fetchLocationDetails = async () => {
@@ -86,11 +92,12 @@ const LocationDetailsPage = ({ params }) => {
 
   return (
     <div className="min-h-screen bg-base-100 p-6">
-      <div className="bg-white shadow-lg rounded-lg p-6 max-w-3xl mx-auto">
+      <div>
         {/* Location Header */}
         <h1 className="text-3xl font-bold text-gray-800 mb-2">
           {overview?.name || "Unknown Location"}
         </h1>
+        
         <p className="text-sm text-gray-500 mb-4">
           <a
             href={overview?.web_url}
@@ -101,23 +108,10 @@ const LocationDetailsPage = ({ params }) => {
             View on TripAdvisor
           </a>
         </p>
-        <p className="text-gray-600 mb-4">
-          {overview?.ranking_data?.ranking_string || "Ranking unavailable"}
-        </p>
 
         {/* Rating and Reviews */}
         <div className="flex items-center mb-4">
-          {overview?.rating_image_url && (
-            <img
-              src={overview.rating_image_url}
-              alt="Rating"
-              className="w-6 h-6 mr-2"
-            />
-          )}
-          <p className="text-gray-700">{overview?.rating || "N/A"} / 5</p>
-          <p className="ml-2 text-gray-500">
-            ({overview?.num_reviews || "0"} reviews)
-          </p>
+          <StarRatingDisplay rating={averageRating} reviewCount={reviewCount} />
         </div>
 
         {/* Address and Contact Info */}
@@ -144,25 +138,21 @@ const LocationDetailsPage = ({ params }) => {
               </a>
             </p>
           )}
+                  {/* Favorite Button */}
+        <FavoriteButton
+          locationId={locationId}
+          locationName={overview?.name || "Unknown Location"}
+        />
+        
         </div>
-
-        {/* Features */}
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Features</h2>
-          <ul className="list-disc list-inside text-gray-600">
-            {overview?.features?.map((feature, index) => (
-              <li key={index}>{feature}</li>
-            )) || <p>No features available</p>}
-          </ul>
-        </div>
-
-        {/* Photos */}
-        <div className="mb-6">
+                {/* Photos */}
+                <div className="mb-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-2">Photos</h2>
           <div className="grid grid-cols-2 gap-4">
             {photos.data?.map((photo) => (
               <div key={photo.id} className="flex flex-col items-center">
                 <Image
+                  
                   src={photo.images.medium.url}
                   alt={photo.caption}
                   className="rounded-md w-full object-cover h-40 mb-2"
@@ -189,9 +179,23 @@ const LocationDetailsPage = ({ params }) => {
           </p>
         </div>
 
+        {/* Features */}
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Features</h2>
+          <ul className="list-disc list-inside text-gray-600">
+            {overview?.features?.map((feature, index) => (
+              <li key={index}>{feature}</li>
+            )) || <p>No features available</p>}
+          </ul>
+        </div>
+
         {/* Reviews Section */}
         <div className="mt-8">
-          <Reviews locationId={locationId} />
+        <Reviews
+          locationId={locationId}
+          setAverageRating={setAverageRating}
+          setReviewCount={setReviewCount}
+        />
         </div>
       </div>
     </div>

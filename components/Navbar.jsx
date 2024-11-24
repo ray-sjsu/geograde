@@ -22,7 +22,8 @@ const Navbar = () => {
       <div className="flex justify-between items-center container mx-auto px-4 h-full">
         {/* Logo */}
         <div className="flex items-center">
-          <Link href="/">
+        {/* MAKE SURE TO CHANGE IT BACK TO THE HOMEPAGE, I'M USING THIS FOR TESTING ONLY */}
+          <Link href="/search">
             <button className="text-lg font-bold">Logo</button>
           </Link>
         </div>
@@ -51,6 +52,7 @@ const Navbar = () => {
           <div className="w-full max-w-md">
             <SearchBox setCoordinates={setCoordinates} />
           </div>
+              
         </div>
 
         {/* Client Auth Menu */}
