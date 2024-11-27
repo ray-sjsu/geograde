@@ -1,0 +1,46 @@
+/* Geocoder container styles */
+.custom-geocoder-container .mapboxgl-ctrl-geocoder {
+  background-color: oklch(var(--b1)); /* base-100 */
+  color: oklch(var(--bc)); /* base-content */
+  border-radius: var(--rounded-btn); /* DaisyUI button corners */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.custom-geocoder-container .mapboxgl-ctrl-geocoder:focus-within {
+  border-radius: var(--rounded-btn); /* Adjusted for focus */
+  border: 1px solid oklch(var(--p)); /* Primary color on focus */
+}
+
+/* Input styles */
+.custom-geocoder-container .mapboxgl-ctrl-geocoder input {
+  height: 2.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border: none;
+  outline: none;
+  color: oklch(var(--bc)); /* base-content */
+}
+
+.custom-geocoder-container .mapboxgl-ctrl-geocoder input:focus {
+  border-radius: var(--rounded-btn);
+  border: none;
+  box-shadow: none;
+  outline: 2px solid oklch(var(--p));
+  outline-offset: 3px;
+}
+
+/* Suggestions dropdown styles */
+.custom-geocoder-container .mapboxgl-ctrl-geocoder .suggestions {
+  background-color: #fff;
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.custom-geocoder-container .mapboxgl-ctrl-geocoder .suggestions > li > a:hover {
+  background-color: #f9fafb;
+}
+
+/* Hide the search icon */
+.custom-geocoder-container .mapboxgl-ctrl-geocoder--icon-search {
+  display: none;
+}

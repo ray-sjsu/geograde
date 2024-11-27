@@ -24,10 +24,6 @@ const SearchInputs = ({ formData, handleChange }) => {
         <h2 className="text-xl font-semibold text-gray-700 mb-4">
           Required Parameters
         </h2>
-        <p className="text-sm text-gray-500 mb-4">
-          Note: Set <strong>TRIPADVISOR_API_KEY</strong> in your environment
-          instead of passing it as a query parameter.
-        </p>
         <div className="space-y-4">
           <label className="block">
             <span className="text-gray-600">Search Query</span>
@@ -71,7 +67,7 @@ const SearchInputs = ({ formData, handleChange }) => {
               <option value="geos">Geos</option>
             </select>
           </label>
-
+{/* 
           <label className="block">
             <span className="text-gray-600">Phone</span>
             <span className="text-sm text-gray-500 block">
@@ -85,7 +81,7 @@ const SearchInputs = ({ formData, handleChange }) => {
               onChange={handleChange}
               className="text-base-content mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
             />
-          </label>
+          </label> */}
 
           <label className="block">
             <span className="text-gray-600">Address</span>
@@ -115,7 +111,7 @@ const SearchInputs = ({ formData, handleChange }) => {
             />
           </label>
 
-          <label className="block">
+          {/* <label className="block">
             <span className="text-gray-600">Radius Unit</span>
             <span className="text-sm text-gray-500 block">
               Unit for the radius (default is &quot;mi&quot;): &quot;km,&quot;
@@ -132,9 +128,9 @@ const SearchInputs = ({ formData, handleChange }) => {
               <option value="mi">Miles</option>
               <option value="m">Meters</option>
             </select>
-          </label>
+          </label> */}
 
-          <label className="block">
+          {/* <label className="block">
             <span className="text-gray-600">Language</span>
             <span className="text-sm text-gray-500 block">
               Language for results (default is &quot;en&quot;): e.g.,
@@ -153,7 +149,7 @@ const SearchInputs = ({ formData, handleChange }) => {
               <option value="de">German</option>
               <option value="zh">Chinese</option>
             </select>
-          </label>
+          </label> */}
 
           <label className="block">
             <span className="text-gray-600">Search Limit</span>

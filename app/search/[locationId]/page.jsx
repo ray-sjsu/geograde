@@ -94,20 +94,15 @@ const LocationDetailsPage = ({ params }) => {
     <div className="min-h-screen bg-base-100 p-6">
       <div>
         {/* Location Header */}
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">
+        <h1 className="text-3xl font-bold text-gray-800 mr-5">
           {overview?.name || "Unknown Location"}
+                  {/* Favorite Button */}
+        <FavoriteButton
+          locationId={locationId}
+          locationName={overview?.name || "Unknown Location"}
+        />
         </h1>
         
-        <p className="text-sm text-gray-500 mb-4">
-          <a
-            href={overview?.web_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-500 underline"
-          >
-            View on TripAdvisor
-          </a>
-        </p>
 
         {/* Rating and Reviews */}
         <div className="flex items-center mb-4">
@@ -138,11 +133,16 @@ const LocationDetailsPage = ({ params }) => {
               </a>
             </p>
           )}
-                  {/* Favorite Button */}
-        <FavoriteButton
-          locationId={locationId}
-          locationName={overview?.name || "Unknown Location"}
-        />
+
+        {/* Features */}
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Features</h2>
+          <ul className="list-disc list-inside text-gray-600">
+            {overview?.features?.map((feature, index) => (
+              <li key={index}>{feature}</li>
+            )) || <p>No features available</p>}
+          </ul>
+        </div>
         
         </div>
                 {/* Photos */}
@@ -167,7 +167,7 @@ const LocationDetailsPage = ({ params }) => {
               </div>
             ))}
           </div>
-          <p className="text-sm text-gray-500 mt-2">
+          {/* <p className="text-sm text-gray-500 mt-2">
             <a
               href={overview.see_all_photos}
               target="_blank"
@@ -176,18 +176,10 @@ const LocationDetailsPage = ({ params }) => {
             >
               See all photos on TripAdvisor
             </a>
-          </p>
+          </p> */}
         </div>
 
-        {/* Features */}
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Features</h2>
-          <ul className="list-disc list-inside text-gray-600">
-            {overview?.features?.map((feature, index) => (
-              <li key={index}>{feature}</li>
-            )) || <p>No features available</p>}
-          </ul>
-        </div>
+
 
         {/* Reviews Section */}
         <div className="mt-8">

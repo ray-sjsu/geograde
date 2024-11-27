@@ -43,7 +43,7 @@ const FavoriteButton = ({ locationId, locationName }) => {
   return (
     <button
       onClick={toggleFavorite}
-      className={`btn ${isFavorite ? "btn-error" : "btn-primary"}`}
+      className={`btn ml-5 ${isFavorite ? "btn-error" : "btn-primary"}`}
     >
       {isFavorite ? "Remove Favorite" : "Add to Favorites"}
     </button>

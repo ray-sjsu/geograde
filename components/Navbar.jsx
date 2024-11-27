@@ -2,63 +2,63 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import SearchBox from "./SearchBox"; // Import your custom SearchBox component
+import SearchBox from "./SearchBox"; // Your custom Mapbox Geocoder component
 import ClientAuthMenu from "./ClientAuthMenu";
 
 const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [coordinates, setCoordinates] = useState(""); // For storing lat/long
+  const [coordinates, setCoordinates] = useState(null);
   const router = useRouter();
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     router.push(
-      `/search?searchQuery=${encodeURIComponent(searchQuery)}&coordinates=${encodeURIComponent(coordinates)}`
+      `/search?searchQuery=${encodeURIComponent(searchQuery)}${
+        coordinates
+          ? `&latitude=${encodeURIComponent(coordinates.latitude)}&longitude=${encodeURIComponent(coordinates.longitude)}`
+          : ""
+      }`
     );
   };
 
   return (
-    <div className="navbar bg-base-300 sticky top-0 h-20 shadow-md z-10">
-      <div className="flex justify-between items-center container mx-auto px-4 h-full">
-        {/* Logo */}
-        <div className="flex items-center">
-        {/* MAKE SURE TO CHANGE IT BACK TO THE HOMEPAGE, I'M USING THIS FOR TESTING ONLY */}
-          <Link href="/search">
-            <button className="text-lg font-bold">Logo</button>
-          </Link>
-        </div>
+    <div className="navbar bg-accent sticky top-0 shadow-md z-10">
+      {/* Navbar Start - Logo */}
+      <div className="navbar-start">
+        <Link href="/">
+          <div className="btn btn-ghost text-lg font-bold text-white">
+            Logo
+          </div>
+        </Link>
+      </div>
 
-        {/* Centered Search Fields */}
-        <div className="flex flex-grow justify-center items-center space-x-4">
-          {/* Search Query Field */}
-          <form onSubmit={handleSearchSubmit} className="w-full max-w-md">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Keyword"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-2 rounded-sm bg-white text-gray-700 placeholder-gray-400"
-                style={{ 
-                  height: "36px",
-                  borderRadius:"4px",
-                }}
-
-              />
-            </div>
-          </form>
-
-          {/* Coordinates Field */}
-          <div className="w-full max-w-md">
+      {/* Navbar Center - Search Bars */}
+      <div className="navbar-center">
+        <form
+          onSubmit={handleSearchSubmit}
+          className="flex items-center space-x-2 bg-accent rounded px-2 py-1">
+          {/* Keyword Input */}
+          <input
+            type="text"
+            placeholder="Keyword"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="input focus:input-primary h-10 w-72 text-gray-700 placeholder-gray-400 rounded-lg"
+          />
+          {/* Mapbox Geocoder */}
+          <div className="flex-grow">
             <SearchBox setCoordinates={setCoordinates} />
           </div>
-              
-        </div>
+          {/* Search Button */}
+          <button type="submit" className="btn btn-primary btn-sm text-white">
+            Search
+          </button>
+        </form>
+      </div>
 
-        {/* Client Auth Menu */}
-        <div className="flex items-center">
-          <ClientAuthMenu />
-        </div>
+      {/* Navbar End - Auth Menu */}
+      <div className="navbar-end">
+        <ClientAuthMenu />
       </div>
     </div>
   );
