@@ -7,6 +7,7 @@ import { useCoordinates } from "/components/CoordinatesContext";
 // Import Mapbox CSS
 import "mapbox-gl/dist/mapbox-gl.css";
 import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
+import "/app/styles/geocoder-override.css"
 
 const SearchBox = () => {
   const { setCoordinates } = useCoordinates();
@@ -34,13 +35,7 @@ const SearchBox = () => {
       const geocoderInput = geocoderContainerRef.current.querySelector(".mapboxgl-ctrl-geocoder input");
       const geocoderContainer = geocoderContainerRef.current.querySelector(".mapboxgl-ctrl-geocoder");
 
-      if (geocoderInput) {
-        geocoderInput.classList.add("input", "input-bordered", "w-full", "max-w-xs");
-      }
 
-      if (geocoderContainer) {
-        geocoderContainer.classList.add("bg-base-200", "rounded-lg", "shadow");
-      }
 
       // Handle events
       geocoder.on("result", (e) => {
@@ -67,7 +62,7 @@ const SearchBox = () => {
     };
   }, [setCoordinates]);
 
-  return <div ref={geocoderContainerRef} className="flex items-center"></div>;
+  return <div ref={geocoderContainerRef} className="custom-geocoder-container flex items-center"></div>;
 };
 
 export default SearchBox;
