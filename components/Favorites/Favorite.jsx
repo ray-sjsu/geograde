@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import StarRatingDisplay from "./StarRatingDisplay";
+import StarRatingDisplay from "../StarRatingDisplay";
 import { collection, getDocs, query, where, doc, deleteDoc } from "firebase/firestore";
 import { firestore, auth } from "/app/firebase/config";
 

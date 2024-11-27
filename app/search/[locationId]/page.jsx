@@ -9,7 +9,7 @@ import {
 } from "/lib/tripadvisor-api/constants";
 import Image from "next/image";
 import Reviews from "/components/Reviews";
-import FavoriteButton from "/components/FavoriteButton";
+import FavoriteButton from "/components//Favorites/FavoriteButton";
 import StarRatingDisplay from "/components/StarRatingDisplay";
 
 
@@ -146,24 +146,22 @@ const LocationDetailsPage = ({ params }) => {
         
         </div>
                 {/* Photos */}
-                <div className="mb-6">
+        <div className="mb-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-2">Photos</h2>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="carousel carousel-center bg-neutral rounded-box space-x-4 p-4">
             {photos.data?.map((photo) => (
-              <div key={photo.id} className="flex flex-col items-center">
+              <div key={photo.id} className="carousel-item">
                 <Image
-                  
                   src={photo.images.medium.url}
                   alt={photo.caption}
-                  className="rounded-md w-full object-cover h-40 mb-2"
                   height={200}
                   width={200}
                 />
-                {photo.caption && (
+                {/* {photo.caption && (
                   <p className="text-sm text-gray-500 text-center">
                     {photo.caption}
                   </p>
-                )}
+                )} */}
               </div>
             ))}
           </div>
