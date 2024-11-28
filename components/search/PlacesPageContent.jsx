@@ -56,21 +56,6 @@ const PlacesPageContent = () => {
     }));
   }, []);
 
-  const handleSearch = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const queryString = new URLSearchParams(formData).toString();
-      const response = await fetch(`/api/locations/simplified/search?${queryString}`);
-      const result = await response.json();
-      console.log(result); // For debugging purposes
-    } catch (error) {
-      console.error("Search failed:", error);
-      setError("Failed to fetch results. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  }, [formData]);
 
   return (
     <div className="drawer lg:drawer-open">
@@ -78,7 +63,7 @@ const PlacesPageContent = () => {
       <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
 
       {/* Main Content */}
-      <div className="drawer-content flex flex-col">
+      <div className="drawer-content flex flex-col bg-base-100">
         {/* Toggle button for mobile */}
         <label
           htmlFor="my-drawer-2"
@@ -117,12 +102,12 @@ const PlacesPageContent = () => {
         >
           <h2 className="text-xl font-bold mb-4">Filter</h2>
           <SearchInputs formData={formData} handleChange={handleChange} />
-          <button
+          {/* <button
             onClick={handleSearch}
             className="btn btn-block btn-primary mt-4"
           >
             Apply Filters
-          </button>
+          </button> */}
         </aside>
       </div>
     </div>
