@@ -21,6 +21,8 @@
     "daisyui": "^4.12.14",
     "firebase": "^10.13.2",
     "firebase-admin": "^12.6.0",
+    "imagekit": "^5.2.0",
+    "imagekitio-next": "^1.0.1",
     "mapbox-gl": "^3.8.0",
     "mysql2": "^3.11.3",
     "next": "14.2.11",

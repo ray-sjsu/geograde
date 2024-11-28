@@ -85,7 +85,7 @@ const ProfilePage = () => {
         {loading && (
           <div className="flex justify-center items-center h-full">
             <DotLottieReact
-              src="/assets/1732701110760.lottie"
+              src="https://lottie.host/d7b40a97-71fd-440e-b8e0-27d70c412526/pyLG2GiGIs.lottie"
               loop
               autoplay
             />
