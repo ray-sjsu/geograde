@@ -12,6 +12,7 @@
     "db-push": "npx prisma db push"
   },
   "dependencies": {
+    "@lottiefiles/dotlottie-react": "^0.10.1",
     "@mapbox/mapbox-gl-geocoder": "^5.0.3",
     "@prisma/client": "^5.22.0",
     "axios": "^1.7.7",

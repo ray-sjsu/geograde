@@ -14,7 +14,7 @@ import {
   DEFAULT_SEARCH_QUERY,
   DEFAULT_CATEGORY,
 } from "/lib/tripadvisor-api/constants";
-import { Suspense } from "react";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const SearchPage = () => {
   const searchParams = useSearchParams(); // Extract query parameters
@@ -87,7 +87,14 @@ const SearchPage = () => {
             Open Filters
           </label>
           <div className="flex flex-col items-center w-full p-6">
-            {loading && <p className="text-blue-500 text-center mt-4">Loading...</p>}
+            {loading && 
+              <p>      
+                <DotLottieReact
+                  src="https://lottie.host/d7b40a97-71fd-440e-b8e0-27d70c412526/pyLG2GiGIs.lottie"
+                  loop
+                  autoplay
+                />
+              </p>}
             {error && <p className="text-red-500 text-center mt-4">{error}</p>}
             {!loading && <SearchResults results={searchResults} />}
           </div>
@@ -97,14 +104,15 @@ const SearchPage = () => {
       
           <label htmlFor="my-drawer-2" className="drawer-overlay"></label>
           <ul className="menu bg-base-200 text-base-content min-h-full w-80 p-4 space-y-4">
+
+            <h2 className="text-xl font-bold mb-4">Filter</h2>
+            <SearchInputs formData={formData} handleChange={handleChange} />
             <button
               onClick={handleSearch}
               className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md focus:ring focus:ring-blue-300"
             >
               Apply Filters
             </button>
-            <h2 className="text-xl font-bold mb-4">Filter</h2>
-            <SearchInputs formData={formData} handleChange={handleChange} />
           </ul>
         </div>
       </div>

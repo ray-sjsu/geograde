@@ -1,37 +1,16 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import {
-  DEFAULT_CURRENCY,
-  DEFAULT_LANGUAGE,
-  DEFAULT_PHOTO_LIMIT,
-  DEFAULT_PHOTO_OFFSET,
-} from "/lib/tripadvisor-api/constants";
+import { doc, getDoc } from "firebase/firestore";
+import { firestore } from "/app/firebase/config";
 import Image from "next/image";
 import Reviews from "/components/Reviews";
-import FavoriteButton from "/components/FavoriteButton";
+import FavoriteButton from "/components/Favorites/FavoriteButton";
 import StarRatingDisplay from "/components/StarRatingDisplay";
-
-
-const locationDetailsAPI = async (locationId, params) => {
-  try {
-    const queryString = new URLSearchParams(params).toString();
-    const response = await fetch(
-      `/api/locations/simplified/overview?locationId=${locationId}&${queryString}`
-    );
-    if (!response.ok) {
-      throw new Error("Failed to fetch location details");
-    }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error:", error);
-    return null;
-  }
-};
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const LocationDetailsPage = ({ params }) => {
-  const { locationId } = params; // Destructure the locationId from params
+  const { locationId } = params; // Extract locationId from params
   const router = useRouter();
 
   const [locationData, setLocationData] = useState(null);
@@ -41,27 +20,24 @@ const LocationDetailsPage = ({ params }) => {
   const [reviewCount, setReviewCount] = useState(0);
 
   useEffect(() => {
-    const fetchLocationDetails = async () => {
-      const data = await locationDetailsAPI(locationId, {
-        language: DEFAULT_LANGUAGE, // Default language
-        currency: DEFAULT_CURRENCY, // Default currency
-        limit: DEFAULT_PHOTO_LIMIT, // Default limit for photos
-        offset: DEFAULT_PHOTO_OFFSET, // Default offset
-      });
+    const fetchLocationDetailsFromFirestore = async () => {
+      try {
+        const docRef = doc(firestore, "locations", locationId); // Reference to the Firestore document
+        const docSnapshot = await getDoc(docRef);
 
-      if (data && data.overview) {
-        setLocationData(data);
-        setError(null);
-      } else if (data && !data.overview) {
-        setError(
-          "The specified location does not exist. Please try another location."
-        );
-      } else {
+        if (docSnapshot.exists()) {
+          setLocationData(docSnapshot.data()); // Retrieve data from Firestore
+          setError(null);
+        } else {
+          setError("The specified location does not exist. Please try another location.");
+        }
+      } catch (error) {
+        console.error("Error fetching location details from Firestore:", error);
         setError("Failed to load location details. Please try again.");
       }
     };
 
-    fetchLocationDetails();
+    fetchLocationDetailsFromFirestore();
   }, [locationId]);
 
   const handleGoBack = () => {
@@ -85,24 +61,33 @@ const LocationDetailsPage = ({ params }) => {
   }
 
   if (!locationData) {
-    return <p className="text-gray-500">Loading...</p>;
+    return <div className="min-h-screen bg-base-100 items-center">        
+      <DotLottieReact
+        src="https://lottie.host/d7b40a97-71fd-440e-b8e0-27d70c412526/pyLG2GiGIs.lottie"
+        loop
+        autoplay
+      />
+    </div>;
   }
 
-  const { overview, photos } = locationData;
+  const {
+    name,
+    address,
+    formatted_phone_number,
+    website,
+    opening_hours,
+    price_level,
+    photo_reference,
+  } = locationData;
 
   return (
     <div className="min-h-screen bg-base-100 p-6">
       <div>
         {/* Location Header */}
-        <h1 className="text-3xl font-bold text-gray-800 mr-5">
-          {overview?.name || "Unknown Location"}
-                  {/* Favorite Button */}
-        <FavoriteButton
-          locationId={locationId}
-          locationName={overview?.name || "Unknown Location"}
-        />
+        <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-4">
+          {name || "Unknown Location"}
+          <FavoriteButton locationId={locationId} locationName={name || "Unknown Location"} />
         </h1>
-        
 
         {/* Rating and Reviews */}
         <div className="flex items-center mb-4">
@@ -112,82 +97,71 @@ const LocationDetailsPage = ({ params }) => {
         {/* Address and Contact Info */}
         <div className="mb-6">
           <p className="text-gray-600">
-            <strong>Address:</strong>{" "}
-            {overview?.address_obj?.address_string || "No address available"}
+            <strong>Address:</strong> {address || "No address available"}
           </p>
-          {overview?.phone && (
+          {formatted_phone_number && (
             <p className="text-gray-600">
-              <strong>Phone:</strong> {overview.phone}
+              <strong>Phone:</strong> {formatted_phone_number}
             </p>
           )}
-          {overview?.website && (
+          {website && (
             <p className="text-gray-600">
               <strong>Website:</strong>{" "}
               <a
-                href={overview.website}
+                href={website}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-500 underline"
               >
-                {overview.website}
+                {website}
               </a>
             </p>
           )}
+          {price_level && (
+            <p className="text-gray-600">
+              <strong>Price Level:</strong> {"$".repeat(price_level)}
+            </p>
+          )}
+        </div>
 
-        {/* Features */}
+        {/* Features (Opening Hours) */}
         <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Features</h2>
-          <ul className="list-disc list-inside text-gray-600">
-            {overview?.features?.map((feature, index) => (
-              <li key={index}>{feature}</li>
-            )) || <p>No features available</p>}
-          </ul>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Opening Hours</h2>
+          {opening_hours?.periods ? (
+            <ul className="list-disc list-inside text-gray-600">
+              {opening_hours.periods.map((period, index) => (
+                <li key={index}>{`${period.open_day}: ${period.open_time} - ${period.close_time}`}</li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-600">No opening hours available</p>
+          )}
         </div>
-        
-        </div>
-                {/* Photos */}
-                <div className="mb-6">
+
+        {/* Photos */}
+        <div className="mb-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-2">Photos</h2>
-          <div className="grid grid-cols-2 gap-4">
-            {photos.data?.map((photo) => (
-              <div key={photo.id} className="flex flex-col items-center">
-                <Image
-                  
-                  src={photo.images.medium.url}
-                  alt={photo.caption}
-                  className="rounded-md w-full object-cover h-40 mb-2"
-                  height={200}
-                  width={200}
-                />
-                {photo.caption && (
-                  <p className="text-sm text-gray-500 text-center">
-                    {photo.caption}
-                  </p>
-                )}
-              </div>
-            ))}
+          <div className="carousel carousel-center bg-neutral rounded-box space-x-4 p-4">
+            {photo_reference ? (
+              <Image
+                src={`/assets/andrew-neel-cckf4TsHAuw-unsplash.jpg`}
+                alt={name}
+                height={200}
+                width={200}
+              />
+            ) : (
+              <p className="text-gray-600">No photos available</p>
+            )}
           </div>
-          {/* <p className="text-sm text-gray-500 mt-2">
-            <a
-              href={overview.see_all_photos}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 underline"
-            >
-              See all photos on TripAdvisor
-            </a>
-          </p> */}
         </div>
-
-
 
         {/* Reviews Section */}
         <div className="mt-8">
-        <Reviews
-          locationId={locationId}
-          setAverageRating={setAverageRating}
-          setReviewCount={setReviewCount}
-        />
+          <Reviews
+            locationId={locationId}
+            setAverageRating={setAverageRating}
+            setReviewCount={setReviewCount}
+          />
         </div>
       </div>
     </div>

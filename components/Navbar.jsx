@@ -22,7 +22,7 @@ const Navbar = () => {
   };
 
   return (
-    <div className="navbar bg-accent sticky top-0 shadow-md z-10">
+    <div className="navbar bg-accent top-0 shadow-md z-10">
       {/* Navbar Start - Logo */}
       <div className="navbar-start">
         <Link href="/">

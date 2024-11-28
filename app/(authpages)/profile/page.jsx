@@ -1,31 +1,46 @@
 "use client";
-import SignOutButton from '@/components/auth-components/SignOutButton'
-import { URL_SIGN_IN } from '@/lib/CONSTANTS';
-import { useRouter } from 'next/navigation';
+
+import React from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "@/app/firebase/config";
-import React, { useEffect } from 'react'
-import { useAuthState } from 'react-firebase-hooks/auth';
-import FavoritesList from '/components/FavoritesList';
+import ProfilePageClient from "/components/Profile/ProfilePage";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const ProfilePage = () => {
   const [user, loading, error] = useAuthState(auth);
-  const router = useRouter();
 
-  useEffect(() => {
-    if (!user) {
-      console.log("Redirecting to sign-in page...");
-      router.push(URL_SIGN_IN);
-    }
-  }, [user, router]);
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>      
+        <DotLottieReact
+          src="https://lottie.host/d7b40a97-71fd-440e-b8e0-27d70c412526/pyLG2GiGIs.lottie"
+          loop
+          autoplay
+        />
+        </p>
+      </div>
+    );
+  }
 
-  return (
-    <div>
-        <div className="min-h-screen bg-base-100 p-6">
-          <FavoritesList /> 
-        </div>
-      <SignOutButton/>
-    </div>
-  )
-}
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Error: {error.message}</p>
+      </div>
+    );
+  }
 
-export default ProfilePage
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>You need to be signed in to view this page.</p>
+      </div>
+    );
+  }
+
+  // Pass the user to the ProfilePageClient
+  return <ProfilePageClient user={user} />;
+};
+
+export default ProfilePage;

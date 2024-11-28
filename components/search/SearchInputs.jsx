@@ -4,7 +4,6 @@ import React, {useEffect} from "react";
 import { useCoordinates, CoordinatesContext } from "/components/CoordinatesContext";
 
 const SearchInputs = ({ formData, handleChange }) => {
-
   const { coordinates } = useCoordinates(CoordinatesContext);
 
   // Format the coordinates into "latitude,longitude" string format
@@ -18,8 +17,7 @@ const SearchInputs = ({ formData, handleChange }) => {
   }, [formattedLatLong, handleChange]);
 
   return (
-    
-    <div>
+    <div className="max-h-screen overflow-y-auto p-4 space-y-6">
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-700 mb-4">
           Required Parameters
@@ -67,21 +65,6 @@ const SearchInputs = ({ formData, handleChange }) => {
               <option value="geos">Geos</option>
             </select>
           </label>
-{/* 
-          <label className="block">
-            <span className="text-gray-600">Phone</span>
-            <span className="text-sm text-gray-500 block">
-              Phone number to filter results (format can include spaces and
-              dashes, without &quot;+&quot;).
-            </span>
-            <input
-              type="text"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              className="text-base-content mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
-            />
-          </label> */}
 
           <label className="block">
             <span className="text-gray-600">Address</span>
@@ -111,46 +94,6 @@ const SearchInputs = ({ formData, handleChange }) => {
             />
           </label>
 
-          {/* <label className="block">
-            <span className="text-gray-600">Radius Unit</span>
-            <span className="text-sm text-gray-500 block">
-              Unit for the radius (default is &quot;mi&quot;): &quot;km,&quot;
-              &quot;mi,&quot; or &quot;m&quot;.
-            </span>
-            <select
-              name="radiusUnit"
-              value={formData.radiusUnit}
-              onChange={handleChange}
-              className="text-base-content mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
-            >
-              <option value="">Select unit</option>
-              <option value="km">Kilometers</option>
-              <option value="mi">Miles</option>
-              <option value="m">Meters</option>
-            </select>
-          </label> */}
-
-          {/* <label className="block">
-            <span className="text-gray-600">Language</span>
-            <span className="text-sm text-gray-500 block">
-              Language for results (default is &quot;en&quot;): e.g.,
-              &quot;en&quot; for English, &quot;es&quot; for Spanish.
-            </span>
-            <select
-              name="language"
-              value={formData.language}
-              onChange={handleChange}
-              className="text-base-content mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
-            >
-              <option value="">Select language</option>
-              <option value="en">English</option>
-              <option value="es">Spanish</option>
-              <option value="fr">French</option>
-              <option value="de">German</option>
-              <option value="zh">Chinese</option>
-            </select>
-          </label> */}
-
           <label className="block">
             <span className="text-gray-600">Search Limit</span>
             <span className="text-sm text-gray-500 block">
@@ -160,39 +103,6 @@ const SearchInputs = ({ formData, handleChange }) => {
               type="text"
               name="searchLimit"
               value={formData.searchLimit}
-              onChange={handleChange}
-              className="text-base-content mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
-            />
-          </label>
-        </div>
-      </div>
-
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-700 mb-4">Photos</h2>
-        <div className="space-y-4">
-          <label className="block">
-            <span className="text-gray-600">Limit</span>
-            <span className="text-sm text-gray-500 block">
-              Number of images to return (default is 5, maximum is 5).
-            </span>
-            <input
-              type="text"
-              name="limit"
-              value={formData.limit}
-              onChange={handleChange}
-              className="text-base-content mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
-            />
-          </label>
-
-          <label className="block">
-            <span className="text-gray-600">Offset</span>
-            <span className="text-sm text-gray-500 block">
-              Index of the first result for pagination.
-            </span>
-            <input
-              type="text"
-              name="offset"
-              value={formData.offset}
               onChange={handleChange}
               className="text-base-content mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
             />

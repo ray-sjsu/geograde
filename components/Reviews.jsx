@@ -62,25 +62,41 @@ export default function Reviews({ locationId, setAverageRating, setReviewCount }
 
   const saveReview = async () => {
     if (!user || !locationId) return;
-
-    const reviewData = {
-      textContent: reviewText,
-      rating: reviewRating,
-      noiseLevel, // Include noise level in review
-      locationId, // Attach the locationId to the review
-      userID: user.uid,
-      userEmail: userEmail,
-      date: Timestamp.now(),
-    };
-
-    const reviewDocRef = userReview
-      ? doc(firestore, "reviews", userReview.id) // Update existing review
-      : doc(collection(firestore, "reviews"), `${user.uid}_${locationId}`); // New review ID pattern
-
-    await setDoc(reviewDocRef, reviewData);
-    setOpen(false);
-    fetchReviews(); // Refresh reviews for the current location
+  
+    try {
+      // Fetch the location's title from the TripAdvisor API
+      const response = await fetch(`/api/locations/details?locationId=${locationId}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch location details");
+      }
+      const locationData = await response.json();
+      const locationTitle = locationData?.title || "Unknown Location";
+  
+      // Prepare the review data
+      const reviewData = {
+        textContent: reviewText,
+        rating: reviewRating,
+        noiseLevel, // Include noise level in review
+        locationId, // Attach the locationId to the review
+        locationTitle, // Add location title to the review
+        userID: user.uid,
+        userEmail: userEmail,
+        date: Timestamp.now(),
+      };
+  
+      // Save or update the review in Firestore
+      const reviewDocRef = userReview
+        ? doc(firestore, "reviews", userReview.id) // Update existing review
+        : doc(collection(firestore, "reviews"), `${user.uid}_${locationId}`); // New review ID pattern
+  
+      await setDoc(reviewDocRef, reviewData);
+      setOpen(false);
+      fetchReviews(); // Refresh reviews for the current location
+    } catch (error) {
+      console.error("Error saving review:", error);
+    }
   };
+  
 
   const removeReview = async () => {
     if (!user || !userReview) return;

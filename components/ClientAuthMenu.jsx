@@ -38,15 +38,6 @@ const ClientAuthMenu = () => {
               <Link href="/profile">Profile</Link>
             </li>
             <li>
-              <Link href="/settings">Settings</Link>
-            </li>
-            <li>
-              <Link href="/favorites">Favorites</Link>
-            </li>
-            <li>
-              <Link href="/reviews">Reviews</Link>
-            </li>
-            <li>
               <a onClick={handleLogout} className="text-red-500">
                 Logout
               </a>
