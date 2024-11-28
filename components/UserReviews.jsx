@@ -122,7 +122,7 @@ const UserReviews = () => {
               </div>
 
               {/* Dropdown Menu */}
-              <div className="dropdown dropdown-end mt-4">
+              <div className="dropdown mt-4">
                 <div tabIndex={0} role="button" className="btn btn-sm m-1">
                   Options
                 </div>

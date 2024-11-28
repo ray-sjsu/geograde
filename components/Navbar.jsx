@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import SearchBox from "./SearchBox"; // Your custom Mapbox Geocoder component
+import Image from "next/image";
 import ClientAuthMenu from "./ClientAuthMenu";
 
 const Navbar = () => {
@@ -22,12 +23,18 @@ const Navbar = () => {
   };
 
   return (
-    <div className="navbar bg-accent shadow-md z-10">
+    
+    <div className="navbar bg-accent shadow-2xl z-10">
       {/* Navbar Start - Logo */}
       <div className="navbar-start">
         <Link href="/">
-          <div className="btn btn-ghost text-lg font-bold text-white">
-            Logo
+          <div className="btn btn-ghost h-14 text-lg font-bold text-accent-content">
+            <Image
+              src="/geograde-logo-bg.png"
+              width={50}
+              height={50}
+             />
+             Geograde
           </div>
         </Link>
       </div>
