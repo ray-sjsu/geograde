@@ -11,3 +11,4 @@
 
 5. Run command `npm install`. This will install all necessary npm packages.
 6. Run command `npm run dev`. This will run a dev version of the app.
+7. Go to localhost:3000 on your browser to see the website.
