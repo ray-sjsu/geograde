@@ -2,7 +2,7 @@ import React from 'react'
 
 const Review = () => {
   return (
-    <div key={id} className="card bg-neutral shadow-lg w-full">
+    <div key={id} className="card bg-neutral shadow-2xl w-full">
           <div className="card-body">
             <div className="flex justify-between items-center">
               <h2 className="card-title text-xl font-bold text-neutral-content">

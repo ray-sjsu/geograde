@@ -2,167 +2,145 @@
 
 import React, { useEffect, useState } from "react";
 import { firestore } from "@/app/firebase/config";
-import { collection, query, orderBy, limit, startAfter, startAt, getDocs } from "firebase/firestore";
-import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import { collection, getDocs } from "firebase/firestore";
+import PlaceCard from "./PlaceCard";
 
-const FirestoreSearchResults = ({ pageSize = 10 }) => {
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+  const toRadians = (degrees) => (degrees * Math.PI) / 180;
+  const R = 6371; // Earth's radius in kilometers
+  const dLat = toRadians(lat2 - lat1);
+  const dLon = toRadians(lon2 - lon1);
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRadians(lat1)) *
+      Math.cos(toRadians(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+};
+
+const FirestoreSearchResults = ({ userCoordinates, radius, pageSize = 10, searchQuery = "" }) => {
   const [results, setResults] = useState([]);
-  const [lastVisible, setLastVisible] = useState(null);
-  const [firstVisible, setFirstVisible] = useState(null); // Track the first document for "Previous"
+  const [filteredLocations, setFilteredLocations] = useState([]); // Filtered locations based on query and radius
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1); // Track the current page
-  const [previousPages, setPreviousPages] = useState([]); // Stack of previous cursors
-  const [hasMore, setHasMore] = useState(true);
 
-  // Fetch the first page of results
+  // Fetch and process all locations
   const fetchResults = async () => {
     setLoading(true);
-
     try {
       const resultsRef = collection(firestore, "locations");
-      const resultsQuery = query(resultsRef, orderBy("name"), limit(pageSize));
-
-      const querySnapshot = await getDocs(resultsQuery);
+      const querySnapshot = await getDocs(resultsRef);
       const locations = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
 
-      setResults(locations);
-      setFirstVisible(querySnapshot.docs[0]); // Set the first visible document
-      setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]); // Set the last visible document
-      setHasMore(querySnapshot.docs.length === pageSize); // If less than pageSize, no more results
-      setPreviousPages([]); // Reset previous pages stack
-      setCurrentPage(1); // Reset to page 1
+      // Calculate distances and filter by radius
+      const processedLocations = locations
+        .map((location) => ({
+          ...location,
+          distance: calculateDistance(
+            userCoordinates.latitude,
+            userCoordinates.longitude,
+            location.location.lat,
+            location.location.lng
+          ),
+        }))
+        .filter((location) => location.distance <= radius) // Filter by radius
+        .sort((a, b) => a.distance - b.distance); // Sort by distance
+
+      // Save processed locations for later filtering
+      setFilteredLocations(processedLocations);
+      setCurrentPage(1); // Reset to the first page
     } catch (error) {
       console.error("Error fetching Firestore results:", error);
     }
-
     setLoading(false);
   };
 
-  // Fetch the next page of results
-  const fetchNextPage = async () => {
-    if (!lastVisible || !hasMore) return;
+  // Filter locations by search query and paginate
+  const updateResults = () => {
+    const queryLower = searchQuery.toLowerCase();
+    const filtered = filteredLocations.filter((location) => {
+      const nameMatch = location.name?.toLowerCase().includes(queryLower);
+      const typeMatch = location.types?.some((type) => type.toLowerCase().includes(queryLower));
+      return nameMatch || typeMatch;
+    });
 
-    setLoading(true);
-
-    try {
-      const resultsRef = collection(firestore, "locations");
-      const resultsQuery = query(
-        resultsRef,
-        orderBy("name"),
-        startAfter(lastVisible), // Use the last document as the starting point
-        limit(pageSize)
-      );
-
-      const querySnapshot = await getDocs(resultsQuery);
-      const newLocations = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      // Update results, last visible document, and previous pages stack
-      setPreviousPages((prev) => [...prev, firstVisible]); // Add current firstVisible to stack
-      setResults(newLocations);
-      setFirstVisible(querySnapshot.docs[0]); // Update first visible document
-      setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
-      setHasMore(querySnapshot.docs.length === pageSize);
-      setCurrentPage((prev) => prev + 1); // Increment page count
-    } catch (error) {
-      console.error("Error fetching next page of results:", error);
-    }
-
-    setLoading(false);
+    // Paginate results
+    const startIndex = (currentPage - 1) * pageSize;
+    setResults(filtered.slice(startIndex, startIndex + pageSize));
   };
 
-  // Fetch the previous page of results
-  const fetchPreviousPage = async () => {
-    if (!previousPages.length) return;
-
-    setLoading(true);
-
-    try {
-      const resultsRef = collection(firestore, "locations");
-      const previousCursor = previousPages[previousPages.length - 1]; // Get the last cursor from the stack
-      const resultsQuery = query(
-        resultsRef,
-        orderBy("name"),
-        startAt(previousCursor), // Use the previous cursor as the starting point
-        limit(pageSize)
-      );
-
-      const querySnapshot = await getDocs(resultsQuery);
-      const newLocations = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      // Update results, last visible document, and previous pages stack
-      setPreviousPages((prev) => prev.slice(0, -1)); // Remove the last cursor from the stack
-      setResults(newLocations);
-      setFirstVisible(querySnapshot.docs[0]); // Update first visible document
-      setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
-      setCurrentPage((prev) => prev - 1); // Decrement page count
-    } catch (error) {
-      console.error("Error fetching previous page of results:", error);
+  // Handle pagination
+  const handleNextPage = () => {
+    const startIndex = currentPage * pageSize;
+    if (startIndex < filteredLocations.length) {
+      setCurrentPage((prev) => prev + 1);
     }
+  };
 
-    setLoading(false);
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prev) => prev - 1);
+    }
   };
 
   useEffect(() => {
     fetchResults();
-  }, []);
+  }, [userCoordinates, radius]);
+
+  useEffect(() => {
+    updateResults();
+  }, [filteredLocations, searchQuery, currentPage]);
 
   return (
     <div>
-      <div className="grid gap-6">
-        {results.map((location) => (
-        <div key={location.id} className="card card-side bg-base-100 shadow-xl rounded-xl">
-        {/* Image Section */}
-        <figure>
-          <img
-            src={"https://fastly.picsum.photos/id/42/3456/2304.jpg?hmac=dhQvd1Qp19zg26MEwYMnfz34eLnGv8meGk_lFNAJR3g"} // Placeholder if no image
-            alt={location.name}
-            className=" w-52 h-52 object-cover"
-          />
-        </figure>
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+        <div>
+          <div className="grid gap-6">
+            {results.map((location) => (
+              <PlaceCard
+                key={location.id}
+                id={location.id}
+                name={location.name}
+                address={location.address}
+                imageUrl={location.photos ? location.photos[0]?.url : null}
+                rating={location.rating}
+                distance={location.distance.toFixed(2)} // Display distance
+              />
+            ))}
+          </div>
 
-        {/* Content Section */}
-        <div className="card-body text-base-content">
-          <h2 className="card-title">{location.name}</h2>
-          <p>{location.address}</p>
-          <p className="text-sm text-base-content">{`Rating: ${location.rating || "N/A"} ⭐`}</p>
-          <div className="card-actions justify-end">
-            <a href={`/search/${location.id}`} className="btn btn-primary">
-              View Details
-            </a>
+          {/* Pagination Controls */}
+          <div className="flex justify-center mt-6">
+            <div className="join">
+              <button
+                className={`join-item btn ${currentPage === 1 ? "btn-disabled" : ""}`}
+                onClick={handlePreviousPage}
+                disabled={currentPage === 1}
+              >
+                « Previous
+              </button>
+              <button className="join-item btn">Page {currentPage}</button>
+              <button
+                className={`join-item btn ${
+                  results.length < pageSize ? "btn-disabled" : ""
+                }`}
+                onClick={handleNextPage}
+                disabled={results.length < pageSize}
+              >
+                Next »
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-        ))}
-      </div>
-
-      <div className="flex justify-center mt-6">
-        <div className="join">
-          <button
-            className={`join-item btn ${previousPages.length === 0 ? "btn-disabled" : ""}`}
-            onClick={fetchPreviousPage}
-            disabled={previousPages.length === 0 || loading}
-          >
-            «
-          </button>
-          <button className="join-item btn">Page {currentPage}</button>
-          <button
-            className={`join-item btn ${!hasMore ? "btn-disabled" : ""}`}
-            onClick={fetchNextPage}
-            disabled={!hasMore || loading}
-          >
-            »
-          </button>
-        </div>
-      </div>
+      )}
     </div>
   );
 };

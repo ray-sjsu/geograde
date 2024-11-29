@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useRef, useEffect } from "react";
 import mapboxgl from "mapbox-gl";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
@@ -7,12 +8,12 @@ import { useCoordinates } from "/components/CoordinatesContext";
 // Import Mapbox CSS
 import "mapbox-gl/dist/mapbox-gl.css";
 import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
-import "/app/styles/geocoder-override.css"
+import "/app/styles/geocoder-override.css";
 
 const SearchBox = () => {
-  const { setCoordinates } = useCoordinates();
+  const { setCoordinates } = useCoordinates(); // Access context for setting coordinates
   const geocoderContainerRef = useRef(null);
-  const geocoderRef = useRef(null); // To track the geocoder instance
+  const geocoderRef = useRef(null); // Track the geocoder instance
 
   useEffect(() => {
     if (!mapboxgl.accessToken) {
@@ -30,12 +31,6 @@ const SearchBox = () => {
 
       // Add Geocoder to the container
       geocoder.addTo(geocoderContainerRef.current);
-
-      // Style adjustments for the Geocoder
-      const geocoderInput = geocoderContainerRef.current.querySelector(".mapboxgl-ctrl-geocoder input");
-      const geocoderContainer = geocoderContainerRef.current.querySelector(".mapboxgl-ctrl-geocoder");
-
-
 
       // Handle events
       geocoder.on("result", (e) => {

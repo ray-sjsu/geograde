@@ -1,14 +1,16 @@
 "use client";
-import React, { useState } from "react";
+
+import React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import SearchBox from "./SearchBox"; // Your custom Mapbox Geocoder component
+import Image from "next/image";
+import SearchBox from "./SearchBox"; // Custom Mapbox Geocoder component
 import ClientAuthMenu from "./ClientAuthMenu";
+import { useCoordinates } from "/components/CoordinatesContext"; // Import context
 
 const Navbar = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [coordinates, setCoordinates] = useState(null);
   const router = useRouter();
+  const { searchQuery, setSearchQuery, coordinates } = useCoordinates(); // Get shared state and setters from context
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -22,12 +24,13 @@ const Navbar = () => {
   };
 
   return (
-    <div className="navbar bg-accent shadow-md z-10">
+    <div className="navbar bg-accent shadow-2xl z-10">
       {/* Navbar Start - Logo */}
       <div className="navbar-start">
         <Link href="/">
-          <div className="btn btn-ghost text-lg font-bold text-white">
-            Logo
+          <div className="btn btn-ghost h-14 text-lg font-bold text-accent-content">
+            <Image src="/geograde-logo-bg.png" width={50} height={50} alt="Logo" />
+            Geograde
           </div>
         </Link>
       </div>
@@ -47,7 +50,7 @@ const Navbar = () => {
           />
           {/* Mapbox Geocoder */}
           <div className="flex-grow">
-            <SearchBox setCoordinates={setCoordinates} />
+            <SearchBox /> {/* No need to pass setCoordinates */}
           </div>
           {/* Search Button */}
           <button type="submit" className="btn btn-primary btn-sm text-white">

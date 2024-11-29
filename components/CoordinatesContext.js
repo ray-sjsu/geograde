@@ -1,5 +1,4 @@
-// CoordinatesContext.js
-"use client"
+"use client";
 
 import React, { createContext, useContext, useState } from "react";
 
@@ -14,10 +13,18 @@ export const useCoordinates = () => {
 };
 
 export const CoordinatesProvider = ({ children }) => {
-  const [coordinates, setCoordinates] = useState(null);
+  const [coordinates, setCoordinates] = useState(null); // Stores latitude and longitude
+  const [searchQuery, setSearchQuery] = useState(""); // Stores the user's search input
 
   return (
-    <CoordinatesContext.Provider value={{ coordinates, setCoordinates }}>
+    <CoordinatesContext.Provider
+      value={{
+        coordinates,
+        setCoordinates,
+        searchQuery,
+        setSearchQuery,
+      }}
+    >
       {children}
     </CoordinatesContext.Provider>
   );
