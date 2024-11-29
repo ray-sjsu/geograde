@@ -1,16 +1,11 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
+import { useCoordinates } from "/components/CoordinatesContext";
 import SearchInputs from "/components/search/SearchInputs";
 import FirestoreSearchResults from "./PlaceResults";
 import {
-  DEFAULT_LANGUAGE,
-  DEFAULT_LAT_LONG,
-  DEFAULT_PHOTO_LIMIT,
-  DEFAULT_PHOTO_OFFSET,
   DEFAULT_RADIUS,
-  DEFAULT_RADIUS_UNIT,
-  DEFAULT_SEARCH_LIMIT,
   DEFAULT_SEARCH_QUERY,
   DEFAULT_CATEGORY,
 } from "/lib/tripadvisor-api/constants";
@@ -18,19 +13,12 @@ import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const PlacesPageContent = () => {
   const searchParams = useSearchParams();
+  const { coordinates } = useCoordinates(); // Get coordinates from the context
 
   const [formData, setFormData] = useState({
-    latLong: DEFAULT_LAT_LONG,
     searchQuery: DEFAULT_SEARCH_QUERY,
     category: DEFAULT_CATEGORY,
-    phone: "",
-    address: "",
     radius: DEFAULT_RADIUS,
-    radiusUnit: DEFAULT_RADIUS_UNIT,
-    language: DEFAULT_LANGUAGE,
-    limit: DEFAULT_PHOTO_LIMIT,
-    offset: DEFAULT_PHOTO_OFFSET,
-    searchLimit: DEFAULT_SEARCH_LIMIT,
   });
 
   const [loading, setLoading] = useState(false);
@@ -56,15 +44,12 @@ const PlacesPageContent = () => {
     }));
   }, []);
 
+  const userCoordinates = coordinates || { latitude: 0, longitude: 0 }; // Default to (0, 0) if not set
 
   return (
     <div className="drawer lg:drawer-open">
-      {/* Drawer Toggle */}
       <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
-
-      {/* Main Content */}
       <div className="drawer-content flex flex-col bg-base-100">
-        {/* Toggle button for mobile */}
         <label
           htmlFor="my-drawer-2"
           className="btn btn-primary drawer-button lg:hidden mx-4 my-2"
@@ -84,13 +69,16 @@ const PlacesPageContent = () => {
           {error && <p className="text-red-500 text-center mt-4">{error}</p>}
           {!loading && (
             <div className="w-full max-w-7xl mx-auto p-4">
-              <FirestoreSearchResults pageSize={10} />
+            <FirestoreSearchResults
+              userCoordinates={coordinates}
+              radius={parseFloat(formData.radius) || 10} // Default radius
+              searchQuery={formData.searchQuery} // Pass the search query
+              pageSize={10}
+            />
             </div>
           )}
         </div>
       </div>
-
-      {/* Sidebar Drawer with Independent Scrolling */}
       <div className="drawer-side">
         <label htmlFor="my-drawer-2" className="drawer-overlay"></label>
         <aside
@@ -102,12 +90,6 @@ const PlacesPageContent = () => {
         >
           <h2 className="text-xl font-bold mb-4">Filter</h2>
           <SearchInputs formData={formData} handleChange={handleChange} />
-          {/* <button
-            onClick={handleSearch}
-            className="btn btn-block btn-primary mt-4"
-          >
-            Apply Filters
-          </button> */}
         </aside>
       </div>
     </div>

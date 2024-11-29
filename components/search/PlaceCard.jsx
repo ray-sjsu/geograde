@@ -53,7 +53,12 @@ const PlaceCard = ({ id, name, address, imageUrl }) => {
           <StarRatingDisplay rating={averageRating} reviewCount={reviewCount} />
         </div>
         <div className="card-actions justify-end">
-          <a href={`/search/${id}`} className="btn btn-primary">
+          <a
+            href={`/search/${id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-primary"
+          >
             View Details
           </a>
         </div>
