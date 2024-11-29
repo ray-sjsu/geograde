@@ -24,13 +24,12 @@ const Navbar = () => {
   };
 
   return (
-    <div className="navbar bg-accent shadow-2xl z-10">
+    <div className="navbar bg-base-200 shadow-2xl z-10">
       {/* Navbar Start - Logo */}
       <div className="navbar-start">
         <Link href="/">
-          <div className="btn btn-ghost h-14 text-lg font-bold text-accent-content">
-            <Image src="/geograde-logo-bg.png" width={50} height={50} alt="Logo" />
-            Geograde
+          <div>
+            <Image src="/geograde-logo-transparent.png" width={188} height={50} alt="Logo" />
           </div>
         </Link>
       </div>
@@ -39,17 +38,17 @@ const Navbar = () => {
       <div className="navbar-center">
         <form
           onSubmit={handleSearchSubmit}
-          className="flex items-center space-x-2 bg-accent rounded px-2 py-1">
+          className="flex items-center space-x-2 rounded px-2 py-1">
           {/* Keyword Input */}
           <input
             type="text"
             placeholder="Keyword"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="input focus:input-primary h-10 w-72 text-gray-700 placeholder-gray-400 rounded-lg"
+            className="input shadow-lg focus:input-primary h-10 w-72 text-gray-700 placeholder-gray-400 rounded-lg"
           />
           {/* Mapbox Geocoder */}
-          <div className="flex-grow">
+          <div className="flex-grow shadow-lg">
             <SearchBox /> {/* No need to pass setCoordinates */}
           </div>
           {/* Search Button */}
