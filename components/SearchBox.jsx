@@ -23,7 +23,7 @@ const SearchBox = () => {
     if (!geocoderRef.current && geocoderContainerRef.current) {
       const geocoder = new MapboxGeocoder({
         accessToken: mapboxgl.accessToken,
-        types: "country,region,place,postcode,locality,neighborhood",
+        types: "country,region,place,postcode,locality,neighborhood,address",
         placeholder: "Search for a location...",
       });
 

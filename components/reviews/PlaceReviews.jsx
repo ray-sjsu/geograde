@@ -230,9 +230,11 @@ export default function Reviews({ locationId, setAverageRating, setReviewCount }
         </dialog>
       )}
 
-      {reviews.map((review) => (
-        <Review key={review.id} {...review} />
-      ))}
+      {reviews.length > 0 ? (
+        reviews.map((review) => <Review key={review.id} {...review} />)
+      ) : (
+        <p className="text-gray-500 text-center">No Reviews. Be the first to write one! </p>
+      )}
     </div>
   );
 }

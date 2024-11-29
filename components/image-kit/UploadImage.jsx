@@ -1,7 +1,7 @@
 "use client";
+
+import React, { useState, useRef } from "react";
 import { IKUpload, ImageKitProvider } from "imagekitio-next";
-import React, { useRef, useState } from "react";
-import ImageKitImage from "./ImageKitImage";
 
 const publicKey = process.env.NEXT_PUBLIC_PUBLIC_KEY;
 const urlEndpoint = process.env.NEXT_PUBLIC_URL_ENDPOINT;
@@ -26,116 +26,125 @@ const authenticator = async () => {
   }
 };
 
-const UploadImage = ({ locationId = 111111, onUploadSuccess }) => {
-  const [data, setData] = useState({
-    loading: false,
-    error: false,
-    uploadedFileName: null,
-  });
+const UploadPhotoModal = ({ locationId, userId, isOpen, onClose, onUploadSuccess }) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [uploadedFileName, setUploadedFileName] = useState(null);
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const ikUploadRef = useRef(null);
 
-  const generateUniqueFileName = (locationId) => {
-    const randomNumber = Math.floor(Math.random() * 1_000_000_000); // Generate a random number
-    return `review-${locationId}-${randomNumber}`;
+  const categories = ["Outlets", "Vibe", "Seating", "Menu", "Food and Drink"];
+
+  const toggleCategory = (category) => {
+    setSelectedCategories((prev) =>
+      prev.includes(category)
+        ? prev.filter((c) => c !== category)
+        : [...prev, category]
+    );
   };
 
-  const onError = (err) => {
-    console.log("Error", err);
-    setData({
-      error: true,
-      loading: false,
-      uploadedFileName: null,
-    });
+  const generateUniqueFileName = (locationId, userId) => {
+    const randomNumber = Math.floor(Math.random() * 1_000_000_000);
+    return `placephoto-${locationId}-${userId}-${randomNumber}`;
   };
 
-  const onSuccess = (res) => {
-    console.log("Success", res);
+  const handleSuccess = (res) => {
     const uploadedFileName = res.filePath;
-    setData((prev) => ({
-      ...prev,
-      loading: false,
-      uploadedFileName,
-    }));
-    onUploadSuccess(uploadedFileName);
+    const photoData = {
+      url: `${urlEndpoint}/${uploadedFileName}`,
+      categories: selectedCategories,
+      userId: userId,
+      timestamp: new Date(),
+    };
+    onUploadSuccess(photoData);
+    setUploadedFileName(uploadedFileName);
+    setLoading(false);
+    onClose(); // Close the modal after successful upload
   };
 
-  const onUploadProgress = (progress) => {
-    console.log("Progress", progress);
-    setData((prev) => ({
-      ...prev,
-      loading: true,
-    }));
+  const handleError = () => {
+    setError(true);
+    setLoading(false);
   };
 
-  const onUploadStart = (evt) => {
-    console.log("Start", evt);
-    setData((prev) => ({
-      ...prev,
-      loading: true,
-    }));
+  const handleStart = () => {
+    setLoading(true);
+    setError(false);
   };
+
+  if (!isOpen) return null;
 
   return (
-    <ImageKitProvider
-      publicKey={publicKey}
-      urlEndpoint={urlEndpoint}
-      authenticator={authenticator}
-    >
-      <IKUpload
-        isPrivateFile={false}
-        useUniqueFileName={false}
-        fileName={generateUniqueFileName(locationId)}
-        onError={onError}
-        onSuccess={onSuccess}
-        onUploadProgress={onUploadProgress}
-        onUploadStart={onUploadStart}
-        style={{ display: "none" }}
-        ref={ikUploadRef}
-      />
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-base-300 text-base-content rounded-lg shadow-lg p-6 w-96">
+        <h2 className="text-2xl font-bold mb-4">Upload a Photo</h2>
 
-      <button
-        onClick={() => ikUploadRef.current.click()}
-        className={`w-full py-2 px-4 rounded-lg font-semibold shadow ${
-          data.loading
-            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-            : "bg-green-500 text-white hover:bg-green-600"
-        }`}
-        disabled={data.loading}
-      >
-        {data.loading ? "Uploading..." : "Choose an Image to Upload"}
-      </button>
+        {/* Categories Selection */}
+        <div className="mb-4">
+          <h3 className="font-semibold text-lg">Select Categories</h3>
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            {categories.map((category) => (
+              <label key={category} className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  value={category}
+                  checked={selectedCategories.includes(category)}
+                  onChange={() => toggleCategory(category)}
+                  className="form-checkbox"
+                />
+                <span>{category}</span>
+              </label>
+            ))}
+          </div>
+        </div>
 
-      {data.uploadedFileName && !data.error && !data.loading && (
-        <div className="mt-6 text-center">
-          <h3 className="text-lg font-medium text-gray-800 mb-4">
-            Uploaded Image Preview:
-          </h3>
-          <ImageKitImage
-            path={data.uploadedFileName}
-            width={500}
-            height={500}
-            alt="Uploaded Image"
-            className="w-full h-auto object-cover"
+        {/* Image Upload */}
+        <ImageKitProvider
+          publicKey={publicKey}
+          urlEndpoint={urlEndpoint}
+          authenticator={authenticator}
+        >
+          <IKUpload
+            isPrivateFile={false}
+            useUniqueFileName={false}
+            fileName={generateUniqueFileName(locationId, userId)}
+            onError={handleError}
+            onSuccess={handleSuccess}
+            onUploadStart={handleStart}
+            style={{ display: "none" }}
+            ref={ikUploadRef}
           />
-        </div>
-      )}
+        </ImageKitProvider>
 
-      {data.error && !data.loading && (
-        <div className="mt-6 text-center">
-          <h3 className="text-lg font-medium text-red-500">
-            Failed to upload image. Please try again.
-          </h3>
-        </div>
-      )}
+        <button
+          onClick={() => ikUploadRef.current.click()}
+          className={`w-full py-2 px-4 rounded-lg font-semibold shadow ${
+            loading
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-green-500 text-white hover:bg-green-600"
+          }`}
+          disabled={loading}
+        >
+          {loading ? "Uploading..." : "Choose an Image to Upload"}
+        </button>
 
-      {data.loading && (
-        <div className="mt-6 text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-4 border-green-500 border-opacity-75 mx-auto"></div>
-          <p className="mt-2 text-gray-500">Uploading, please wait...</p>
-        </div>
-      )}
-    </ImageKitProvider>
+        {/* Error Message */}
+        {error && (
+          <div className="mt-4 text-center text-red-500">
+            Failed to upload. Please try again.
+          </div>
+        )}
+
+        {/* Cancel Button */}
+        <button
+          onClick={onClose}
+          className="mt-4 w-full py-2 px-4 bg-red-500 text-white font-semibold rounded hover:bg-red-600"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
   );
 };
 
-export default UploadImage;
+export default UploadPhotoModal;

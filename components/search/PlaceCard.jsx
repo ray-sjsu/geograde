@@ -5,7 +5,7 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import { firestore } from "@/app/firebase/config";
 import StarRatingDisplay from "../StarRatingDisplay";
 
-const PlaceCard = ({ id, name, address, imageUrl }) => {
+const PlaceCard = ({ id, name, address, imageUrl, price }) => {
   const [averageRating, setAverageRating] = useState(0);
   const [reviewCount, setReviewCount] = useState(0);
 
@@ -49,9 +49,19 @@ const PlaceCard = ({ id, name, address, imageUrl }) => {
       <div className="card-body text-base-content">
         <h2 className="card-title">{name}</h2>
         <p>{address || "No address available"}</p>
-        <div className="mt-2">
+        <p>
+            {price && (
+            <p className=" ml-1 text-gray-800 text-sm">
+                {Array(price)
+                .fill("$")
+                .join("")}
+            </p>
+            )}
+        </p>
+        <div>
           <StarRatingDisplay rating={averageRating} reviewCount={reviewCount} />
         </div>
+
         <div className="card-actions justify-end">
           <a
             href={`/search/${id}`}
