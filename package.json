@@ -19,6 +19,7 @@
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "daisyui": "^4.12.14",
+    "dayjs": "^1.11.13",
     "firebase": "^10.13.2",
     "firebase-admin": "^12.6.0",
     "imagekit": "^5.2.0",
