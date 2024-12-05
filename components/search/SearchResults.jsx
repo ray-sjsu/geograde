@@ -1,23 +1,9 @@
-"use client"
-
 import Image from 'next/image';
 import React from 'react';
-import { useEffect } from 'react';
 
 const SearchResults = ({ results }) => {
   if (!results || results.length === 0) {
     return <p className="text-gray-500">No results found.</p>;
-  }
-
-  useEffect(()=>{
-    getPlaceList();
-  },[])
-
-  const getPlaceList = async () => {
-    const result=await fetch("/api/google-place-api?q=Study Spots in San Jose, California")
-    const data = await result.json()
-
-    console.log(data)
   }
 
   return (
@@ -51,6 +37,8 @@ const SearchResults = ({ results }) => {
       ))}
     </div>
   );
+
+  
 };
 
 export default SearchResults;

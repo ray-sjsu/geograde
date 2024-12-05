@@ -9,6 +9,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth"; // Firebase Auth
 import { firestore } from "/app/firebase/config";
 import UploadPhotoModal from "../image-kit/UploadImage";
 
+
 const isOpenNow = (periods) => {
   if (!periods || periods.length === 0) return false;
 
