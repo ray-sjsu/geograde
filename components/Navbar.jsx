@@ -49,7 +49,7 @@ const Navbar = () => {
           />
           {/* Mapbox Geocoder */}
           <div className="flex-grow shadow-lg">
-            <SearchBox /> {/* No need to pass setCoordinates */}
+            <SearchBox /> 
           </div>
           {/* Search Button */}
           <button type="submit" className="btn btn-primary btn-sm text-white">

@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, query, where, addDoc } from "firebase/firestore";
+import { collection, getDocs, query, where, addDoc, limit } from "firebase/firestore";
 import { firestore } from "@/app/firebase/config";
 import StarRatingDisplay from "../StarRatingDisplay";
-import { getAuth, onAuthStateChanged } from "firebase/auth"; // Firebase Auth
 
 
 //check if business is open or closed

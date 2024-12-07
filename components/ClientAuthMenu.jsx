@@ -24,7 +24,7 @@ const ClientAuthMenu = () => {
               src={user.photoURL || "/default-avatar.png"} // Use default avatar if none
             />
           ) : (
-            <div className="bg-gray-300 w-full h-full rounded-full" />
+            <div className="bg-black w-full h-full rounded-full" />
           )}
         </div>
       </div>
