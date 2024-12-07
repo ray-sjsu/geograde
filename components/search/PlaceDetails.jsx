@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import FavoriteButton from "/components/Favorites/FavoriteButton";
 import StarRatingDisplay from "../StarRatingDisplay";
 import { collection, getDocs, query, where, addDoc } from "firebase/firestore";
-import { getAuth, onAuthStateChanged } from "firebase/auth"; // Firebase Auth
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { firestore } from "/app/firebase/config";
 import UploadPhotoModal from "../image-kit/UploadImage";
 
@@ -58,11 +58,11 @@ const PlaceDetails = ({
       }
     });
 
-    return () => unsubscribe(); 
+    return () => unsubscribe();
   }, []);
 
   // Fetch photos from Firestore
-  const fetchPhotos = async () => {
+  const fetchPhotos = useCallback(async () => {
     try {
       const photosCollection = collection(firestore, "locations", locationId, "photos");
       const photosSnapshot = await getDocs(photosCollection);
@@ -71,11 +71,11 @@ const PlaceDetails = ({
     } catch (error) {
       console.error("Error fetching photos:", error);
     }
-  };
+  }, [locationId]);
 
   useEffect(() => {
     fetchPhotos();
-  }, [locationId]);
+  }, [fetchPhotos]);
 
   // Fetch average rating and review count
   useEffect(() => {
@@ -188,8 +188,7 @@ const PlaceDetails = ({
 
       {/* Carousel Section */}
       <div className="lg:col-span-2">
-
-        <div class="justify-between flex-row">
+        <div className="justify-between flex-row">
           <h2 className="text-2xl text-base-content font-semibold ml-2">Photos</h2>
         </div>
         <div className="carousel carousel-center bg-neutral rounded-box space-x-4 p-4">
