@@ -12,13 +12,11 @@ const ProfilePage = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p>      
         <DotLottieReact
           src="https://lottie.host/d7b40a97-71fd-440e-b8e0-27d70c412526/pyLG2GiGIs.lottie"
           loop
           autoplay
         />
-        </p>
       </div>
     );
   }

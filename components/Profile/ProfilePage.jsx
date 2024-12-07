@@ -45,9 +45,7 @@ const ProfilePage = () => {
 
   if (!user) {
     return (
-    <div className="text-center mt-10">
-      <p className="text-lg">Please sign in to access your profile.</p>
-    </div>
+      <div className="text-lg text-center mt-10">Please sign in to access your profile.</div>
     );
   }
 
@@ -87,15 +85,6 @@ const ProfilePage = () => {
 
       {/* Main Content */}
       <div className="flex-grow p-6 text-base-content bg-base-300">
-        {loading && (
-          <div className="flex justify-center items-center h-full">
-            <DotLottieReact
-              src="https://lottie.host/d7b40a97-71fd-440e-b8e0-27d70c412526/pyLG2GiGIs.lottie"
-              loop
-              autoplay
-            />
-          </div>
-        )}
         {!loading && activeSection === "account" && <AccountInformation />}
         {!loading && activeSection === "favorites" && <FavoritesList favorites={favorites} />}
         {!loading && activeSection === "reviews" && (
