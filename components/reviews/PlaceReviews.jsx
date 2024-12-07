@@ -13,24 +13,27 @@ import {
   getDoc,
 } from "firebase/firestore";
 import Review from "./PlaceReview";
+import { fetchAverageRating } from "./FetchAverageRating";
 
-export default function Reviews({ locationId, setAverageRating, setReviewCount }) {
+export default function Reviews({ locationId }) {
   const [reviews, setReviews] = useState([]);
   const [userReview, setUserReview] = useState(null);
   const [open, setOpen] = useState(false);
   const [reviewText, setReviewText] = useState("");
   const [reviewRating, setReviewRating] = useState(5);
   const [noiseLevel, setNoiseLevel] = useState(3);
+  const [averageRating, setAverageRating] = useState(0); // Local state for average rating
+  const [reviewCount, setReviewCount] = useState(0); // Local state for review count
   const [user, setUser] = useState(null);
   const [userEmail, setUserEmail] = useState(null);
   const [additionalFeedback, setAdditionalFeedback] = useState({
-    nearbyOutlets: false,
-    lotsOfSeating: false,
-    limitedSeating: false,
-    noOutlets: false,
-    freeWater: false,
-    fastInternet: false,
-    purchaseRequired: false,
+    NearbyOutlets: false,
+    LotsOfSeating: false,
+    LimitedSeating: false,
+    NoOutlets: false,
+    FreeWater: false,
+    FastInternet: false,
+    PurchaseRequired: false,
   });
 
   useEffect(() => {
@@ -72,11 +75,9 @@ export default function Reviews({ locationId, setAverageRating, setReviewCount }
         }
       }
 
-      const totalRating = reviewsList.reduce((sum, review) => sum + review.rating, 0);
-      const reviewCount = reviewsList.length;
-      const average = reviewCount > 0 ? totalRating / reviewCount : 0;
-
-      setAverageRating(average);
+      // Fetch and update average rating and review count
+      const { averageRating, reviewCount } = await fetchAverageRating(locationId);
+      setAverageRating(averageRating);
       setReviewCount(reviewCount);
     } catch (error) {
       console.error("Error fetching reviews:", error);
@@ -121,10 +122,19 @@ export default function Reviews({ locationId, setAverageRating, setReviewCount }
 
       console.log("Review saved successfully.");
       setOpen(false);
-      fetchReviews();
+      fetchReviews(); // Refresh reviews and ratings
     } catch (error) {
       console.error("Error saving review:", error);
     }
+  };
+
+  const removeReview = async () => {
+    if (!user || !userReview) return;
+
+    const reviewDocRef = doc(firestore, "reviews", userReview.id);
+    await deleteDoc(reviewDocRef);
+    setUserReview(null); // Clear user's review state
+    fetchReviews(); // Refresh reviews and ratings
   };
 
   const handleFeedbackChange = (key) => {
@@ -141,6 +151,9 @@ export default function Reviews({ locationId, setAverageRating, setReviewCount }
   return (
     <div className="w-full max-w-4xl space-y-4 overflow-auto mt-5">
       <h1 className="text-3xl font-bold mb-4 text-base-content">Reviews</h1>
+      <p className="text-lg text-gray-600 mb-4">
+        Average Rating: {averageRating.toFixed(1)} ({reviewCount} reviews)
+      </p>
 
       {user && userReview ? (
         <div className="flex justify-between">
@@ -150,9 +163,7 @@ export default function Reviews({ locationId, setAverageRating, setReviewCount }
           <button
             className="btn btn-error"
             onClick={async () => {
-              const reviewDocRef = doc(firestore, "reviews", userReview.id);
-              await deleteDoc(reviewDocRef);
-              fetchReviews();
+              await removeReview();
             }}
           >
             Delete Your Review
@@ -170,7 +181,6 @@ export default function Reviews({ locationId, setAverageRating, setReviewCount }
         <dialog id="review_modal" className="modal modal-open">
           <form method="dialog" className="modal-box text-base-content">
             <h3 className="font-bold text-lg">{userReview ? "Edit Your Review" : "Write a Review"}</h3>
-
             <div className="rating mb-4">
               {[1, 2, 3, 4, 5].map((value) => (
                 <input
@@ -184,7 +194,6 @@ export default function Reviews({ locationId, setAverageRating, setReviewCount }
                 />
               ))}
             </div>
-
             <label className="label">Noise Level: {noiseLevel}/5</label>
             <input
               type="range"
@@ -195,8 +204,6 @@ export default function Reviews({ locationId, setAverageRating, setReviewCount }
               step="1"
               onChange={(e) => setNoiseLevel(Number(e.target.value))}
             />
-
-            <label className="label">Review:</label>
             <textarea
               className="textarea textarea-bordered w-full mb-4"
               value={reviewText}
@@ -230,11 +237,10 @@ export default function Reviews({ locationId, setAverageRating, setReviewCount }
         </dialog>
       )}
 
-      {reviews.length > 0 ? (
-        reviews.map((review) => <Review key={review.id} {...review} />)
-      ) : (
-        <p className="text-gray-500 text-center">No Reviews. Be the first to write one! </p>
-      )}
+      {reviews.map((review) => (
+        <Review key={review.id} {...review} />
+      ))}
+      {reviews.length === 0 && <p className="text-gray-500 text-center">No Reviews. Be the first to write one! </p>}
     </div>
   );
 }

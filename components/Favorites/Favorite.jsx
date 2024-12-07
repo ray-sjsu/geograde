@@ -85,7 +85,7 @@ const Favorite = ({ location, onRemove }) => {
           {image ? (
             <Image
               src={image}
-              alt={location.locationName}
+              alt={"https://fakeimg.pl/500x500?text=No+Image"}
               height={96}
               width={96}
               className="object-cover w-full h-full"

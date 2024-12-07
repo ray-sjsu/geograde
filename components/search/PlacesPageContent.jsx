@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useCoordinates } from "/components/CoordinatesContext";
@@ -26,7 +27,7 @@ const PlacesPageContent = () => {
 
   useEffect(() => {
     const preloadSearchQuery =
-      searchParams.get("searchQuery") || searchParams.get("category") || DEFAULT_SEARCH_QUERY;
+      searchParams.get("searchQuery") || DEFAULT_SEARCH_QUERY;
     const preloadCategory = searchParams.get("category") || DEFAULT_CATEGORY;
 
     setFormData((prev) => ({
@@ -50,6 +51,7 @@ const PlacesPageContent = () => {
     <div className="drawer lg:drawer-open">
       <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content flex flex-col bg-base-100">
+        {/* Filter Button for Mobile */}
         <label
           htmlFor="my-drawer-2"
           className="btn btn-primary drawer-button lg:hidden mx-4 my-2"
@@ -57,6 +59,7 @@ const PlacesPageContent = () => {
           Open Filters
         </label>
         <div className="w-full">
+          {/* Loading Animation */}
           {loading && (
             <div className="flex justify-center items-center h-96">
               <DotLottieReact
@@ -66,19 +69,25 @@ const PlacesPageContent = () => {
               />
             </div>
           )}
+
+          {/* Error Message */}
           {error && <p className="text-red-500 text-center mt-4">{error}</p>}
+
+          {/* Search Results */}
           {!loading && (
             <div className="w-full max-w-7xl mx-auto p-4">
-            <FirestoreSearchResults
-              userCoordinates={coordinates}
-              radius={parseFloat(formData.radius) || 10} // Default radius
-              searchQuery={formData.searchQuery} // Pass the search query
-              pageSize={10}
-            />
+              <FirestoreSearchResults
+                userCoordinates={userCoordinates}
+                radius={parseFloat(formData.radius) || 10} // Default radius
+                searchQuery={formData.searchQuery} // Pass the search query
+                pageSize={10}
+              />
             </div>
           )}
         </div>
       </div>
+
+      {/* Sidebar for Filters */}
       <div className="drawer-side">
         <label htmlFor="my-drawer-2" className="drawer-overlay"></label>
         <aside

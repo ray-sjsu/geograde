@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, query, where, addDoc } from "firebase/firestore";
+import { collection, getDocs, query, where, addDoc, limit } from "firebase/firestore";
 import { firestore } from "@/app/firebase/config";
 import StarRatingDisplay from "../StarRatingDisplay";
-import { getAuth, onAuthStateChanged } from "firebase/auth"; // Firebase Auth
 
 
 //check if business is open or closed
@@ -37,6 +36,7 @@ const PlaceCard = ({ id, name, address, openingHours, imageUrl, price, weekdayTe
   const openStatus = isOpenNow(openingHours?.periods);
   const [averageRating, setAverageRating] = useState(0);
   const [reviewCount, setReviewCount] = useState(0);
+  const [thumbnailUrl, setThumbnailUrl] = useState(null);
 
   // Fetch average rating and review count
   useEffect(() => {
@@ -59,6 +59,26 @@ const PlaceCard = ({ id, name, address, openingHours, imageUrl, price, weekdayTe
     fetchAverageRating();
   }, [id, weekdayText]);
 
+  // Fetch thumbnail image from Firestore
+  useEffect(() => {
+    const fetchThumbnail = async () => {
+      try {
+        const photosRef = collection(firestore, "locations", id, "photos");
+        const photosQuery = query(photosRef, limit(1)); // Limit to the first photo
+        const photosSnapshot = await getDocs(photosQuery);
+
+        if (!photosSnapshot.empty) {
+          const photoData = photosSnapshot.docs[0].data();
+          setThumbnailUrl(photoData.url); // Use the `url` field from the photo document
+        }
+      } catch (error) {
+        console.error("Error fetching thumbnail for PlaceCard:", error);
+      }
+    };
+
+    fetchThumbnail();
+  }, [id]);
+
   return (
     <div className="card card-side bg-base-100 shadow-xl rounded-xl relative">
       {/* Open/Closed Status on card */}
@@ -74,8 +94,8 @@ const PlaceCard = ({ id, name, address, openingHours, imageUrl, price, weekdayTe
       <figure>
         <img
           src={
-            imageUrl ||
-            "https://fastly.picsum.photos/id/42/3456/2304.jpg?hmac=dhQvd1Qp19zg26MEwYMnfz34eLnGv8meGk_lFNAJR3g" // Placeholder if no image
+            thumbnailUrl ||
+            "https://fakeimg.pl/500x500?text=No+Images" // Placeholder if no image
           }
           alt={name}
           className="w-60 h-60 object-cover"

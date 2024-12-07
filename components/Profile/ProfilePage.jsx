@@ -4,6 +4,7 @@ import { firestore, auth } from "@/app/firebase/config";
 import FavoritesList from "@/components/Favorites/FavoritesList"; // Adjust path as needed
 import UserReviews from "@/components/UserReviews"; // Import the UserReviews component
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import AccountInformation from "./AccountInformation";
 
 const ProfilePage = () => {
   const [activeSection, setActiveSection] = useState("account");
@@ -43,7 +44,11 @@ const ProfilePage = () => {
   }, []);
 
   if (!user) {
-    return <p className="text-center mt-10 text-lg">Please sign in to access your profile.</p>;
+    return (
+    <div className="text-center mt-10">
+      <p className="text-lg">Please sign in to access your profile.</p>
+    </div>
+    );
   }
 
   return (
@@ -91,10 +96,10 @@ const ProfilePage = () => {
             />
           </div>
         )}
+        {!loading && activeSection === "account" && <AccountInformation />}
         {!loading && activeSection === "favorites" && <FavoritesList favorites={favorites} />}
         {!loading && activeSection === "reviews" && (
           <div>
-            {/* Use the UserReviews component */}
             <UserReviews userId={user.uid} />
           </div>
         )}

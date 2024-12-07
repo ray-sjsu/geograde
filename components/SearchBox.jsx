@@ -24,7 +24,7 @@ const SearchBox = () => {
       const geocoder = new MapboxGeocoder({
         accessToken: mapboxgl.accessToken,
         types: "country,region,place,postcode,locality,neighborhood,address",
-        placeholder: "Search for a location...",
+        placeholder: "Location",
       });
 
       geocoderRef.current = geocoder;

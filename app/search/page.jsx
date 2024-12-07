@@ -1,7 +1,6 @@
 "use client"
 
 import React, { Suspense } from "react";
-import SearchPageContent from "/components/search/SearchPageContent"
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import PlacesPageContent from "@/components/search/PlacesPageContent";
 

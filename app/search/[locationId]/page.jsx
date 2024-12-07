@@ -1,15 +1,16 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
 import { firestore } from "/app/firebase/config";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import PlaceDetails from "/components/search/PlaceDetails";
 import Reviews from "@/components/reviews/PlaceReviews";
 
-const LocationDetailsPage = ({ params }) => {
-  const { locationId } = params; // Extract locationId from params
+const LocationDetailsPage = () => {
+  const params = useParams(); // Use useParams to access the params
+  const { locationId } = params; // Destructure locationId from params
   const router = useRouter();
 
   const [locationData, setLocationData] = useState(null);
@@ -104,9 +105,7 @@ const LocationDetailsPage = ({ params }) => {
         url={url}
       />
       <div>
-        <Reviews 
-          locationId={locationId} // Ensure `location` is correctly populated
-        />
+        <Reviews locationId={locationId} />
       </div>
     </div>
   );
