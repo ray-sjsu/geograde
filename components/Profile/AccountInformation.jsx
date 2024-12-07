@@ -54,10 +54,6 @@ const AccountInformation = () => {
     }
   };
 
-  if (loading) {
-    return <p>Loading account information...</p>;
-  }
-
   return (
     <div className="bg-base-100 p-6 rounded-lg shadow-md">
       <h1 className="text-2xl font-bold mb-4">Account Information</h1>
@@ -101,7 +97,7 @@ const AccountInformation = () => {
         </div>
         <div>
           <label className="font-semibold text-lg">Email:</label>
-          <p className="text-lg mt-2">{userData?.email || "No email provided"}</p>
+          <div className="text-lg mt-2">{userData?.email || "No email provided"}</div>
         </div>
       </div>
     </div>

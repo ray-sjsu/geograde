@@ -42,7 +42,11 @@ const FavoritesList = () => {
     <div className="w-full max-w-4xl mx-auto p-6">
       <h2 className="text-base-content text-2xl font-bold mb-4">Favorites</h2>
       {favorites.length === 0 ? (
-        <p>No favorites added yet.</p>
+        
+        <div> 
+          No favorites added yet.
+        </div>
+        
       ) : (
         <ul className="space-y-4">
           {favorites.map((favorite) => (
