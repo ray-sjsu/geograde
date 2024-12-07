@@ -117,6 +117,7 @@ const FirestoreSearchResults = ({ userCoordinates, radius, pageSize = 10, search
                   id={location.id}
                   name={location.name}
                   address={location.address}
+                  openingHours={location.opening_hours}
                   imageUrl={location.photos ? location.photos[0]?.url : null}
                   rating={location.rating}
                   distance={location.distance.toFixed(2)}

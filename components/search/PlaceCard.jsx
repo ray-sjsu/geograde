@@ -1,11 +1,40 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, query, where, limit } from "firebase/firestore";
+import { collection, getDocs, query, where, addDoc } from "firebase/firestore";
 import { firestore } from "@/app/firebase/config";
 import StarRatingDisplay from "../StarRatingDisplay";
+import { getAuth, onAuthStateChanged } from "firebase/auth"; // Firebase Auth
 
-const PlaceCard = ({ id, name, address, price }) => {
+
+//check if business is open or closed
+const isOpenNow = (periods) => {
+  if (!periods || periods.length === 0) return false;
+
+  const now = new Date();
+  const currentDay = now.getDay();
+  const currentTime = parseInt(
+    now.toTimeString().slice(0, 2) + now.toTimeString().slice(3, 5)
+  );
+
+  //loop thru to see if time falls in period times
+  for (const period of periods) {
+    if (period.open.day === currentDay) {
+      const openTime = parseInt(period.open.time);
+      const closeTime = parseInt(period.close.time);
+
+      //check if curr time is between open and closing times
+      if (openTime <= currentTime && (closeTime > currentTime || closeTime < openTime)) {
+        return true;
+      }
+    }
+  }
+  return false;
+};
+
+// Main PlaceCard component
+const PlaceCard = ({ id, name, address, openingHours, imageUrl, price, weekdayText, }) => {
+  const openStatus = isOpenNow(openingHours?.periods);
   const [averageRating, setAverageRating] = useState(0);
   const [reviewCount, setReviewCount] = useState(0);
   const [thumbnailUrl, setThumbnailUrl] = useState(null);
@@ -28,9 +57,8 @@ const PlaceCard = ({ id, name, address, price }) => {
         console.error("Error fetching reviews for PlaceCard:", error);
       }
     };
-
     fetchAverageRating();
-  }, [id]);
+  }, [id, weekdayText]);
 
   // Fetch thumbnail image from Firestore
   useEffect(() => {
@@ -53,7 +81,16 @@ const PlaceCard = ({ id, name, address, price }) => {
   }, [id]);
 
   return (
-    <div className="card card-side bg-base-100 shadow-xl rounded-xl">
+    <div className="card card-side bg-base-100 shadow-xl rounded-xl relative">
+      {/* Open/Closed Status on card */}
+      <div className="absolute top-2 right-2">
+        <p
+          className={`ml-1 text-lg font-semibold ${openStatus ? "text-green-600" : "text-red-600"}`}
+        >
+          {openStatus ? "Open Now" : "Closed"}
+        </p>
+      </div>
+
       {/* Image Section */}
       <figure>
         <img
@@ -70,15 +107,13 @@ const PlaceCard = ({ id, name, address, price }) => {
       <div className="card-body text-base-content">
         <h2 className="card-title">{name}</h2>
         <p>{address || "No address available"}</p>
-        <p>
-          {price && (
-            <p className="ml-1 text-gray-800 text-sm">
-              {Array(price)
-                .fill("$")
-                .join("")}
-            </p>
-          )}
-        </p>
+        {price && (
+          <p className="ml-1 text-gray-800 text-sm">
+            {Array(price)
+              .fill("$")
+              .join("")}
+          </p>
+        )}
         <div>
           <StarRatingDisplay rating={averageRating} reviewCount={reviewCount} />
         </div>
@@ -90,7 +125,7 @@ const PlaceCard = ({ id, name, address, price }) => {
             rel="noopener noreferrer"
             className="btn btn-primary"
           >
-            View Details
+            View More
           </a>
         </div>
       </div>

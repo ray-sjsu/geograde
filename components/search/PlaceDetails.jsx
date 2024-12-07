@@ -9,6 +9,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { firestore } from "/app/firebase/config";
 import UploadPhotoModal from "../image-kit/UploadImage";
 
+
 const isOpenNow = (periods) => {
   if (!periods || periods.length === 0) return false;
 
@@ -144,53 +145,47 @@ const PlaceDetails = ({
           </p>
         )}
         <p
-          className={`ml-1 text-lg font-semibold ${
-            openStatus ? "text-green-600" : "text-red-600"
-          }`}
+          className={`ml-1 text-lg font-semibold ${openStatus ? "text-green-600" : "text-red-600"}`}
         >
           {openStatus ? "Open Now" : "Closed"}
         </p>
         <FavoriteButton locationId={locationId} locationName={name || "Unknown Location"} />
       </div>
 
-      {/* Right Section */}
-      <div className="flex flex-col justify-between">
-        {/* Address, Website, and Directions */}
-        <div className="space-y-2">
+      {/* Right Section (Address, Website, Directions) */}
+      <div className="space-y-2">
+        <p className="text-gray-600">
+          <strong>Address:</strong> {address || "No address available"}
+        </p>
+        {website && (
           <p className="text-gray-600">
-            <strong>Address:</strong> {address || "No address available"}
-          </p>
-          {website && (
-            <p className="text-gray-600">
-              <strong>Website:</strong>{" "}
-              <a
-                href={website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 underline"
-              >
-                {website || "Website Unavailable"}
-              </a>
-            </p>
-          )}
-          {url && (
+            <strong>Website:</strong>{" "}
             <a
-              href={url}
+              href={website}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block"
+              className="text-blue-500 underline"
             >
-              <button className="btn btn-success">Get Directions</button>
+              {website || "Website Unavailable"}
             </a>
-          )}
-        </div>
+          </p>
+        )}
+        {url && (
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block"
+          >
+            <button className="btn btn-success">Get Directions</button>
+          </a>
+        )}
       </div>
+
 
       {/* Carousel Section */}
       <div className="lg:col-span-2">
-        <div className="justify-between flex-row">
-          <h2 className="text-2xl text-base-content font-semibold ml-2">Photos</h2>
-        </div>
+        <h2 className="text-2xl text-base-content font-semibold ml-2">Photos</h2>
         <div className="carousel carousel-center bg-neutral rounded-box space-x-4 p-4">
           {photos && photos.length > 0 ? (
             photos.map((photo, index) => (
@@ -212,7 +207,6 @@ const PlaceDetails = ({
         </div>
 
         <div className="mt-2">
-          {/* Open Upload Photo Modal */}
           <button
             onClick={() => setModalOpen(true)}
             className="btn btn-primary btn-outline"
@@ -221,7 +215,6 @@ const PlaceDetails = ({
           </button>
         </div>
 
-        {/* Upload Photo Modal */}
         <UploadPhotoModal
           locationId={locationId}
           userId={userId}
@@ -229,6 +222,20 @@ const PlaceDetails = ({
           onClose={() => setModalOpen(false)}
           onUploadSuccess={handleUploadSuccess}
         />
+      </div>
+      {/* Business hrs curr under car but want to move to right side of reviews next sprint*/}
+      <div className="lg:col-span-2 flex flex-col space-y-2 mt-4">
+      {openingHours?.weekday_text && (
+      <div className="bg-gray-100 p-4 rounded-md shadow">
+        <h3 className="text-xl font-bold text-gray-700">Business Hours:</h3> 
+        <ul className="mt-2 text-gray-700">
+          {openingHours.weekday_text.map((day, index) => (
+            <li key={index}>{day}</li>
+          ))}
+        </ul>
+      </div>
+
+        )}
       </div>
     </div>
   );
