@@ -5,6 +5,7 @@ import { firestore } from "@/app/firebase/config";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import PlaceCard from "./PlaceCard";
 import { isOpenNow } from "./CalculateStatus";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
   const toRadians = (degrees) => (degrees * Math.PI) / 180;
@@ -137,7 +138,13 @@ const FirestoreSearchResults = ({
   return (
 <div className="flex flex-col justify-between min-h-screen">
   {loading ? (
-    <p className="text-center">Loading...</p>
+    <div>
+      <DotLottieReact
+        src="https://lottie.host/f78896eb-1cdc-45e7-aed9-628f1d07d3ed/kQYtSnWl1I.lottie"
+        loop
+        autoplay
+      />
+    </div>
   ) : results.length > 0 ? (
     <>
       <div className="grid gap-6">
