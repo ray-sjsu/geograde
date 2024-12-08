@@ -122,7 +122,13 @@ const PlaceCard = ({ id, name, address, openingHours, imageUrl, price, weekdayTe
 
       {/* Content Section */}
       <div className="card-body text-base-content">
-        <h2 className="card-title">{name}</h2>
+        
+        <a             
+            href={`/search/${id}`}
+            className="hover:underline"
+        >
+          <h2 className="card-title">{name}</h2>
+        </a>
         <p>{address || "No address available"}</p>
         {price && (
           <p className="ml-1 text-gray-800 text-sm">

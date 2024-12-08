@@ -13,7 +13,7 @@ import "/app/styles/geocoder-override.css";
 const SearchBox = () => {
   const { setCoordinates } = useCoordinates(); // Access context for setting coordinates
   const geocoderContainerRef = useRef(null);
-  const geocoderRef = useRef(null); // Track the geocoder instance
+  const geocoderRef = useRef(null);
 
   useEffect(() => {
     if (!mapboxgl.accessToken) {
@@ -29,7 +29,7 @@ const SearchBox = () => {
           longitude: -121.8907,
           latitude: 37.3362, // San Jose default coordinates
         },
-        query: "San Jose, California, United States", 
+        query: "San Jose, California, United States",
       });
 
       geocoderRef.current = geocoder;
@@ -41,7 +41,7 @@ const SearchBox = () => {
       geocoder.on("result", (e) => {
         const [longitude, latitude] = e.result.center;
         setCoordinates({ latitude, longitude });
-        localStorage.setItem("mapboxLocation", e.result.place_name || ""); // Save selected location
+        localStorage.setItem("mapboxLocation", e.result.place_name || "");
       });
 
       // Handle clearing the input
@@ -66,7 +66,20 @@ const SearchBox = () => {
     };
   }, [setCoordinates]);
 
-  return <div ref={geocoderContainerRef} className="custom-geocoder-container flex items-center"></div>;
+  // Suppress Enter key behavior
+  const suppressEnterKey = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+    }
+  };
+
+  return (
+    <div
+      ref={geocoderContainerRef}
+      className="custom-geocoder-container flex items-center"
+      onKeyDown={suppressEnterKey} // Attach keydown event listener
+    ></div>
+  );
 };
 
 export default SearchBox;
