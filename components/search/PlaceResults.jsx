@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { firestore } from "@/app/firebase/config";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import PlaceCard from "./PlaceCard";
+import { isOpenNow } from "./CalculateStatus";
 
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
   const toRadians = (degrees) => (degrees * Math.PI) / 180;
@@ -21,141 +22,127 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 };
 
-const FirestoreSearchResults = ({ userCoordinates, radius, pageSize = 10, searchQuery = "" }) => {
+const FirestoreSearchResults = ({
+  userCoordinates,
+  radius,
+  pageSize = 10,
+  searchQuery,
+  sortBy,
+  openNow = false,
+}) => {
   const [results, setResults] = useState([]);
   const [filteredLocations, setFilteredLocations] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  // Fetch and process all locations
   const fetchResults = useCallback(async () => {
     setLoading(true);
     try {
       const resultsRef = collection(firestore, "locations");
       const querySnapshot = await getDocs(resultsRef);
+
       const locations = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
 
-      // Calculate distances and filter by radius
-      const processedLocations = locations
-        .map((location) => ({
-          ...location,
-          distance: calculateDistance(
+      const processedLocations = await Promise.all(
+        locations.map(async (location) => {
+          const distance = calculateDistance(
             userCoordinates.latitude,
             userCoordinates.longitude,
             location.location.lat,
             location.location.lng
-          ),
-        }))
-        .filter((location) => location.distance <= radius) // Filter by radius
-        .sort((a, b) => a.distance - b.distance); // Sort by distance
+          );
 
-      setFilteredLocations(processedLocations); // Save filtered locations
-      setResults(processedLocations.slice(0, pageSize)); // Show first page of results
-      setCurrentPage(1); // Reset to the first page
+          const reviewsRef = collection(firestore, "reviews");
+          const reviewsQuery = query(reviewsRef, where("locationId", "==", location.id));
+          const reviewsSnapshot = await getDocs(reviewsQuery);
+
+          const reviews = reviewsSnapshot.docs.map((doc) => doc.data());
+          const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+          const reviewCount = reviews.length;
+          const averageRating = reviewCount > 0 ? totalRating / reviewCount : 0;
+
+          return {
+            ...location,
+            distance,
+            reviewCount,
+            averageRating,
+            openNowStatus: isOpenNow(location.opening_hours), // Check if location is open now
+          };
+        })
+      );
+
+      const filtered = processedLocations.filter((location) => {
+        const matchesOpenNow = !openNow || location.openNowStatus; // Apply openNow filter
+        return matchesOpenNow && location.distance <= radius;
+      });
+
+      setFilteredLocations(filtered);
     } catch (error) {
-      console.error("Error fetching Firestore results:", error);
+      console.error("Error fetching results:", error);
     }
     setLoading(false);
-  }, [radius, userCoordinates.latitude, userCoordinates.longitude, pageSize]);
+  }, [radius, userCoordinates, openNow]);
 
-  // Filter locations by search query and paginate
+  const sortLocations = (locations, sortBy) => {
+    switch (sortBy) {
+      case "average_rating":
+        return [...locations].sort((a, b) => b.averageRating - a.averageRating);
+      case "total_reviews":
+        return [...locations].sort((a, b) => b.reviewCount - a.reviewCount);
+      default: // Distance
+        return [...locations].sort((a, b) => a.distance - b.distance);
+    }
+  };
+
   const updateResults = useCallback(() => {
     const queryLower = searchQuery.toLowerCase();
-    const filtered = filteredLocations.filter((location) => {
+    let filtered = filteredLocations.filter((location) => {
       const nameMatch = location.name?.toLowerCase().includes(queryLower);
       const typeMatch = location.types?.some((type) => type.toLowerCase().includes(queryLower));
       return nameMatch || typeMatch;
     });
 
+    // Sort the filtered locations
+    filtered = sortLocations(filtered, sortBy);
+
     // Paginate results
     const startIndex = (currentPage - 1) * pageSize;
     setResults(filtered.slice(startIndex, startIndex + pageSize));
-  }, [filteredLocations, searchQuery, currentPage, pageSize]);
-
-  // Handle pagination
-  const handleNextPage = () => {
-    const startIndex = currentPage * pageSize;
-    if (startIndex < filteredLocations.length) {
-      setCurrentPage((prev) => prev + 1);
-    }
-  };
-
-  const handlePreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage((prev) => prev - 1);
-    }
-  };
+  }, [filteredLocations, searchQuery, currentPage, pageSize, sortBy]);
 
   useEffect(() => {
     fetchResults();
   }, [fetchResults]);
 
   useEffect(() => {
-    if (searchQuery.trim() === "") {
-      // If no search query, display all filtered locations
-      setResults(filteredLocations.slice(0, pageSize));
-      setCurrentPage(1); // Reset to first page
-    } else {
-      updateResults();
-    }
-  }, [filteredLocations, searchQuery, currentPage, updateResults, pageSize]);
+    updateResults();
+  }, [filteredLocations, searchQuery, sortBy, currentPage]);
 
   return (
     <div>
       {loading ? (
         <p>Loading...</p>
-      ) : (
-        <div>
-          {results.length > 0 ? (
-            <div className="grid gap-6">
-              {results.map((location) => (
-                <PlaceCard
-                  key={location.id}
-                  id={location.id}
-                  name={location.name}
-                  address={location.address}
-                  openingHours={location.opening_hours}
-                  imageUrl={location.photos ? location.photos[0]?.url : null}
-                  rating={location.rating}
-                  distance={location.distance.toFixed(2)}
-                  price={location.price_level}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center text-gray-600 mt-10">
-              <p>Couldn&apos;t find anything with that query.</p>
-            </div>
-          )}
-
-          {/* Pagination Controls */}
-          {results.length > 0 && (
-            <div className="flex justify-center mt-6">
-              <div className="join">
-                <button
-                  className={`join-item btn ${currentPage === 1 ? "btn-disabled" : ""}`}
-                  onClick={handlePreviousPage}
-                  disabled={currentPage === 1}
-                >
-                  « Previous
-                </button>
-                <button className="join-item btn">Page {currentPage}</button>
-                <button
-                  className={`join-item btn ${
-                    results.length < pageSize ? "btn-disabled" : ""
-                  }`}
-                  onClick={handleNextPage}
-                  disabled={results.length < pageSize}
-                >
-                  Next »
-                </button>
-              </div>
-            </div>
-          )}
+      ) : results.length > 0 ? (
+        <div className="grid gap-6">
+          {results.map((location) => (
+            <PlaceCard
+              key={location.id}
+              id={location.id}
+              name={location.name}
+              address={location.address}
+              rating={location.averageRating}
+              reviewCount={location.reviewCount}
+              distance={location.distance.toFixed(2)}
+              openingHours={location.opening_hours}
+              imageUrl={location.photos ? location.photos[0]?.url : null}
+            />
+          ))}
         </div>
+      ) : (
+        <p className="text-center text-gray-600 mt-10">No results found.</p>
       )}
     </div>
   );

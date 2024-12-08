@@ -1,21 +1,38 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import SearchBox from "./SearchBox"; // Custom Mapbox Geocoder component
+import SearchBox from "./SearchBox";
 import ClientAuthMenu from "./ClientAuthMenu";
 import { useCoordinates } from "/components/CoordinatesContext"; // Import context
 
 const Navbar = () => {
   const router = useRouter();
-  const { searchQuery, setSearchQuery, coordinates } = useCoordinates(); // Get shared state and setters from context
+  const { coordinates } = useCoordinates(); // Get shared state from context
+
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Load searchQuery from localStorage on initial render
+  useEffect(() => {
+    const savedQuery = localStorage.getItem("searchQuery");
+    if (savedQuery) {
+      setSearchQuery(savedQuery);
+    }
+  }, []);
+
+  // Save searchQuery to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("searchQuery", searchQuery || "");
+  }, [searchQuery]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
+    if (!searchQuery.trim()) return; // Prevent navigation if empty
+
     router.push(
-      `/search?searchQuery=${encodeURIComponent(searchQuery)}${
+      `/search?searchQuery=${encodeURIComponent(searchQuery.trim())}${
         coordinates
           ? `&latitude=${encodeURIComponent(coordinates.latitude)}&longitude=${encodeURIComponent(coordinates.longitude)}`
           : ""
@@ -38,7 +55,8 @@ const Navbar = () => {
       <div className="navbar-center">
         <form
           onSubmit={handleSearchSubmit}
-          className="flex items-center space-x-2 rounded px-2 py-1">
+          className="flex items-center space-x-2 rounded px-2 py-1"
+        >
           {/* Keyword Input */}
           <input
             type="text"
@@ -49,7 +67,7 @@ const Navbar = () => {
           />
           {/* Mapbox Geocoder */}
           <div className="flex-grow shadow-lg">
-            <SearchBox /> 
+            <SearchBox />
           </div>
           {/* Search Button */}
           <button type="submit" className="btn btn-primary btn-sm text-white">

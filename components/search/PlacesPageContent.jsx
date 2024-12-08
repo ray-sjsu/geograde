@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useCoordinates } from "/components/CoordinatesContext";
 import SearchInputs from "/components/search/SearchInputs";
@@ -14,38 +14,66 @@ import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const PlacesPageContent = () => {
   const searchParams = useSearchParams();
-  const { coordinates } = useCoordinates(); // Get coordinates from the context
+  const { coordinates, setCoordinates, searchQuery, setSearchQuery } =
+    useCoordinates();
 
   const [formData, setFormData] = useState({
-    searchQuery: DEFAULT_SEARCH_QUERY,
+    searchQuery: searchQuery || DEFAULT_SEARCH_QUERY,
     category: DEFAULT_CATEGORY,
     radius: DEFAULT_RADIUS,
+    openNow: false,
   });
 
+  const [sortBy, setSortBy] = useState("total_reviews");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Initialize data from searchParams or localStorage
   useEffect(() => {
-    const preloadSearchQuery =
-      searchParams.get("searchQuery") || DEFAULT_SEARCH_QUERY;
-    const preloadCategory = searchParams.get("category") || DEFAULT_CATEGORY;
+    const savedData =
+      typeof window !== "undefined"
+        ? JSON.parse(localStorage.getItem("searchFormData")) || {}
+        : {};
 
     setFormData((prev) => ({
-      ...prev,
-      searchQuery: preloadSearchQuery,
-      category: preloadCategory,
+      searchQuery: searchParams.get("searchQuery") || savedData.searchQuery || prev.searchQuery,
+      category: searchParams.get("category") || savedData.category || DEFAULT_CATEGORY,
+      radius: savedData.radius || DEFAULT_RADIUS,
+      openNow: savedData.openNow || false,
     }));
-  }, [searchParams]);
+
+    if (savedData.coordinates) {
+      setCoordinates(savedData.coordinates);
+    }
+  }, [searchParams, setCoordinates]);
+
+  // Save data to localStorage whenever formData or sortBy changes
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(
+        "searchFormData",
+        JSON.stringify({
+          ...formData,
+          coordinates,
+        })
+      );
+      localStorage.setItem("sortBy", sortBy);
+    }
+  }, [formData, sortBy, coordinates]);
 
   const handleChange = useCallback((e) => {
-    const { name, value } = e.target;
+    const { name, type, value, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   }, []);
 
-  const userCoordinates = coordinates || { latitude: 0, longitude: 0 }; // Default to (0, 0) if not set
+  const handleSortChange = useCallback((e) => {
+    setSortBy(e.target.value);
+  }, []);
+
+  const userCoordinates = coordinates || { latitude: 0, longitude: 0 };
 
   return (
     <div className="drawer lg:drawer-open">
@@ -75,11 +103,13 @@ const PlacesPageContent = () => {
 
           {/* Search Results */}
           {!loading && (
-            <div className="w-full max-w-7xl mx-auto p-4">
+            <div className="w-full mx-auto p-8">
               <FirestoreSearchResults
                 userCoordinates={userCoordinates}
-                radius={parseFloat(formData.radius) || 10} // Default radius
-                searchQuery={formData.searchQuery} // Pass the search query
+                radius={formData.radius}
+                searchQuery={formData.searchQuery}
+                sortBy={sortBy}
+                openNow={formData.openNow}
                 pageSize={10}
               />
             </div>
@@ -97,8 +127,13 @@ const PlacesPageContent = () => {
             marginTop: "var(--navbar-height)",
           }}
         >
-          <h2 className="text-xl font-bold mb-4">Filter</h2>
-          <SearchInputs formData={formData} handleChange={handleChange} />
+          <h2 className="text-xl font-bold mb-4">Filter and Sort</h2>
+          <SearchInputs
+            formData={formData}
+            handleChange={handleChange}
+            handleSortChange={handleSortChange}
+            sortBy={sortBy}
+          />
         </aside>
       </div>
     </div>

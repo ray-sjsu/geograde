@@ -13,7 +13,7 @@ import {
   getDoc,
 } from "firebase/firestore";
 import Review from "./PlaceReview";
-import { fetchAverageRating } from "./FetchAverageRating";
+import { fetchAndUpdateAverageRating } from "./FetchAverageRating";
 
 export default function Reviews({ locationId }) {
   const [reviews, setReviews] = useState([]);
@@ -51,22 +51,22 @@ export default function Reviews({ locationId }) {
 
   const fetchReviews = async () => {
     if (!locationId) return;
-
+  
     try {
       const reviewsCollection = collection(firestore, "reviews");
       const q = query(reviewsCollection, where("locationId", "==", locationId));
       const reviewSnapshot = await getDocs(q);
-
+  
       const reviewsList = reviewSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
       setReviews(reviewsList);
-
+  
       if (user) {
         const userReview = reviewsList.find((review) => review.userID === user.uid);
         setUserReview(userReview || null);
-
+  
         if (userReview) {
           setReviewText(userReview.textContent);
           setReviewRating(userReview.rating);
@@ -74,34 +74,35 @@ export default function Reviews({ locationId }) {
           setAdditionalFeedback(userReview.additionalFeedback || {});
         }
       }
-
-      // Fetch and update average rating and review count
-      const { averageRating, reviewCount } = await fetchAverageRating(locationId);
+  
+      // Fetch and update average rating and review count from Firestore
+      const { averageRating, reviewCount } = await fetchAndUpdateAverageRating(locationId);
       setAverageRating(averageRating);
       setReviewCount(reviewCount);
     } catch (error) {
       console.error("Error fetching reviews:", error);
     }
   };
+  
 
   const saveReview = async () => {
     if (!user || !locationId) {
       console.error("User or location ID is missing.");
       return;
     }
-
+  
     try {
       const locationDocRef = doc(firestore, "locations", locationId);
       const locationDoc = await getDoc(locationDocRef);
-
+  
       if (!locationDoc.exists()) {
         console.error("Location not found in Firestore!");
         return;
       }
-
+  
       const locationData = locationDoc.data();
       const locationName = locationData?.name || "Unknown Location";
-
+  
       const reviewData = {
         textContent: reviewText,
         rating: reviewRating,
@@ -113,20 +114,26 @@ export default function Reviews({ locationId }) {
         date: Timestamp.now(),
         additionalFeedback,
       };
-
+  
       const reviewDocRef = userReview
         ? doc(firestore, "reviews", userReview.id)
         : doc(collection(firestore, "reviews"), `${user.uid}_${locationId}`);
-
+  
       await setDoc(reviewDocRef, reviewData);
-
+  
       console.log("Review saved successfully.");
       setOpen(false);
-      fetchReviews(); // Refresh reviews and ratings
+  
+      // Fetch and update the average rating and review count
+      await fetchAndUpdateAverageRating(locationId);
+  
+      fetchReviews(); // Refresh reviews
     } catch (error) {
       console.error("Error saving review:", error);
     }
   };
+  
+  
 
   const removeReview = async () => {
     if (!user || !userReview) return;

@@ -22,6 +22,29 @@ const SearchInputs = ({ formData, handleChange }) => {
               placeholder="Enter radius in kilometers"
             />
           </label>
+          <label className="block">
+            <span className="text-gray-600">Sort By</span>
+            <select
+              name="sortBy"
+              value={formData.sortBy || "total_reviews"}
+              onChange={handleChange}
+              className="text-base-content mt-1 block w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
+            >
+              <option value="average_rating">Highest Rated</option>
+              <option value="distance">Distance</option>
+              <option value="total_reviews">Number of Reviews</option>
+            </select>
+          </label>
+          <label className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              name="openNow"
+              checked={formData.openNow}
+              onChange={handleChange}
+              className="checkbox checkbox-primary"
+            />
+            <span className="text-gray-600">Open Now</span>
+          </label>
         </div>
       </div>
     </div>
