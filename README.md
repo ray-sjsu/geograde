@@ -2,13 +2,15 @@
 
 ## Setup instructions
 
-1. Install [NodeJS runtime](https://nodejs.org/en) and [Visual Studio Code](https://code.visualstudio.com/)
+1. Install [NodeJS runtime](https://nodejs.org/en) and [Visual Studio Code](https://code.visualstudio.com/) MUST-HAVE
 2. Download repository and unzip `geograde`.
 3. Right-click on `geograde` folder (that contains project files) and click `Open with Code`.
 4. Open a new terminal in `VSCode`. Go the toolbar (top-left), click `Terminal` and within the dropdown menu, click `New Terminal`.
 
-## Run instructions (update later)
-
-5. Run command `npm install`. This will install all necessary npm packages.
-6. Run command `npm run dev`. This will run a dev version of the app.
-7. Go to localhost:3000 on your browser to see the website.
+## Run From Github
+1. Clone github repository in VSCode
+2. Open the terminal with " CTRL + ` "
+3. Run command `npm install`. This will install all necessary npm packages.
+4. Create a ".env" file in the parent folder "/geograde". Will send the .env file contents via email.
+5. Run command `npm run dev`. This will run a dev version of the app.
+6. Go to localhost:3000 on your browser to see the website.
