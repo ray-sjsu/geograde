@@ -1,6 +1,5 @@
 export const isOpenNow = (openingHours) => {
     if (!openingHours?.periods || openingHours.periods.length === 0) {
-      console.log("Periods are undefined or empty:", openingHours?.periods);
       return false;
     }
   
@@ -10,18 +9,14 @@ export const isOpenNow = (openingHours) => {
       now.toTimeString().slice(0, 2) + now.toTimeString().slice(3, 5)
     );
   
-    console.log("Current Day:", currentDay, "Current Time:", currentTime);
   
     for (const period of openingHours.periods) {
       const openDay = period?.open?.day;
       const closeDay = period?.close?.day;
       const openTime = parseInt(period?.open?.time);
       const closeTime = parseInt(period?.close?.time);
-  
-      console.log("Checking period:", { openDay, closeDay, openTime, closeTime });
-  
+    
       if (openDay === undefined || closeDay === undefined || openTime === undefined || closeTime === undefined) {
-        console.log("Invalid period data:", period);
         continue;
       }
   
@@ -45,7 +40,6 @@ export const isOpenNow = (openingHours) => {
       }
     }
   
-    console.log("Closed: No matching period found");
     return false;
   };
   

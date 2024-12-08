@@ -28,8 +28,8 @@ const Navbar = () => {
   }, [searchQuery]);
 
   const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) return; // Prevent navigation if empty
+    e.preventDefault(); 
+    if (!searchQuery.trim()) return;
 
     router.push(
       `/search?searchQuery=${encodeURIComponent(searchQuery.trim())}${
@@ -38,6 +38,13 @@ const Navbar = () => {
           : ""
       }`
     );
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSearchSubmit(e); 
+    }
   };
 
   return (
@@ -60,9 +67,10 @@ const Navbar = () => {
           {/* Keyword Input */}
           <input
             type="text"
-            placeholder="Keyword"
+            placeholder="Place Type/Name (Philz Coffee, cafe...)"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={handleKeyPress} // Trigger search on Enter
             className="input shadow-lg focus:input-primary h-10 w-72 text-gray-700 placeholder-gray-400 rounded-lg"
           />
           {/* Mapbox Geocoder */}

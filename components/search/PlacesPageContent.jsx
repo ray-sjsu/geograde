@@ -8,7 +8,6 @@ import FirestoreSearchResults from "./PlaceResults";
 import {
   DEFAULT_RADIUS,
   DEFAULT_SEARCH_QUERY,
-  DEFAULT_CATEGORY,
 } from "/lib/tripadvisor-api/constants";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
@@ -18,30 +17,33 @@ const PlacesPageContent = () => {
 
   const [formData, setFormData] = useState({
     searchQuery: DEFAULT_SEARCH_QUERY,
-    category: DEFAULT_CATEGORY,
     radius: DEFAULT_RADIUS,
-    openNow: false, // Add openNow to formData
+    openNow: false,
   });
 
-  const [sortBy, setSortBy] = useState("total_reviews"); // Default sorting method
+  const [sortBy, setSortBy] = useState("total_reviews");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [showAll, setShowAll] = useState(false); // Track whether to show all locations
+  const [showAll, setShowAll] = useState(false);
 
+  // Sync state with query parameters on load
   useEffect(() => {
     const preloadSearchQuery =
-      searchParams.get("searchQuery") || DEFAULT_SEARCH_QUERY;
-    const preloadCategory = searchParams.get("category") || DEFAULT_CATEGORY;
-    const isShowAll = searchParams.has("showAll"); // Check if 'showAll' is in the URL query
+    searchParams.get("searchQuery") || DEFAULT_SEARCH_QUERY;
+    const preloadSortBy = searchParams.get("sortBy") || "total_reviews";
+    const preloadRadius = searchParams.get("radius") || DEFAULT_RADIUS;
+    const isShowAll = searchParams.has("showAll");
 
     setShowAll(isShowAll);
 
     setFormData((prev) => ({
       ...prev,
       searchQuery: preloadSearchQuery,
-      category: preloadCategory,
-      radius: isShowAll ? Infinity : DEFAULT_RADIUS,
+      radius: preloadRadius, 
+      openNow: false,
     }));
+
+    setSortBy(preloadSortBy);
   }, [searchParams]);
 
   const handleChange = useCallback((e) => {
@@ -50,7 +52,10 @@ const PlacesPageContent = () => {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
-    setSortBy(e.target.value);
+
+    if (name === "sortBy") {
+      setSortBy(value); // Update sortBy if the user changes it
+    }
   }, []);
 
   const userCoordinates = coordinates || { latitude: 0, longitude: 0 };
@@ -88,10 +93,10 @@ const PlacesPageContent = () => {
                 userCoordinates={userCoordinates}
                 radius={formData.radius}
                 searchQuery={formData.searchQuery}
-                sortBy={formData.sortBy || sortBy} 
-                openNow={formData.openNow} 
+                sortBy={sortBy} // Ensure sortBy state is passed directly
+                openNow={formData.openNow}
                 pageSize={10}
-                showAll={showAll}
+                showAll={showAll} // Pass showAll flag
               />
             </div>
           )}

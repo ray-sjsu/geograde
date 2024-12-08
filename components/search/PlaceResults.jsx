@@ -93,10 +93,10 @@ const FirestoreSearchResults = ({
     switch (sortBy) {
       case "average_rating":
         return [...locations].sort((a, b) => b.averageRating - a.averageRating);
-      case "total_reviews":
-        return [...locations].sort((a, b) => b.reviewCount - a.reviewCount);
-      default: // Distance
+      case "distance":
         return [...locations].sort((a, b) => a.distance - b.distance);
+      default:
+        return [...locations].sort((a, b) => b.reviewCount - a.reviewCount);
     }
   };
 
@@ -181,7 +181,8 @@ const FirestoreSearchResults = ({
               handlePageChange(currentPage + 1);
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            disabled={currentPage * pageSize >= filteredLocations.length}
+            disabled={currentPage * pageSize >= filteredLocations.length || results.length < pageSize}
+
           >
             »
           </button>
