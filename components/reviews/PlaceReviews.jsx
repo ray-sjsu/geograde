@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { firestore, auth } from "/app/firebase/config";
 import {
   collection,
@@ -22,8 +22,8 @@ export default function Reviews({ locationId }) {
   const [reviewText, setReviewText] = useState("");
   const [reviewRating, setReviewRating] = useState(5);
   const [noiseLevel, setNoiseLevel] = useState(3);
-  const [averageRating, setAverageRating] = useState(0); // Local state for average rating
-  const [reviewCount, setReviewCount] = useState(0); // Local state for review count
+  const [averageRating, setAverageRating] = useState(0);
+  const [reviewCount, setReviewCount] = useState(0);
   const [user, setUser] = useState(null);
   const [userEmail, setUserEmail] = useState(null);
   const [additionalFeedback, setAdditionalFeedback] = useState({
@@ -36,6 +36,7 @@ export default function Reviews({ locationId }) {
     PurchaseRequired: false,
   });
 
+  // Fetch user authentication state
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       if (currentUser) {
@@ -49,24 +50,25 @@ export default function Reviews({ locationId }) {
     return () => unsubscribe();
   }, []);
 
-  const fetchReviews = async () => {
+  // Fetch reviews and average ratings
+  const fetchReviews = useCallback(async () => {
     if (!locationId) return;
-  
+
     try {
       const reviewsCollection = collection(firestore, "reviews");
       const q = query(reviewsCollection, where("locationId", "==", locationId));
       const reviewSnapshot = await getDocs(q);
-  
+
       const reviewsList = reviewSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
       setReviews(reviewsList);
-  
+
       if (user) {
         const userReview = reviewsList.find((review) => review.userID === user.uid);
         setUserReview(userReview || null);
-  
+
         if (userReview) {
           setReviewText(userReview.textContent);
           setReviewRating(userReview.rating);
@@ -74,35 +76,34 @@ export default function Reviews({ locationId }) {
           setAdditionalFeedback(userReview.additionalFeedback || {});
         }
       }
-  
-      // Fetch and update average rating and review count from Firestore
+
       const { averageRating, reviewCount } = await fetchAndUpdateAverageRating(locationId);
       setAverageRating(averageRating);
       setReviewCount(reviewCount);
     } catch (error) {
       console.error("Error fetching reviews:", error);
     }
-  };
-  
+  }, [locationId, user]);
 
+  // Save or update review
   const saveReview = async () => {
     if (!user || !locationId) {
       console.error("User or location ID is missing.");
       return;
     }
-  
+
     try {
       const locationDocRef = doc(firestore, "locations", locationId);
       const locationDoc = await getDoc(locationDocRef);
-  
+
       if (!locationDoc.exists()) {
         console.error("Location not found in Firestore!");
         return;
       }
-  
+
       const locationData = locationDoc.data();
       const locationName = locationData?.name || "Unknown Location";
-  
+
       const reviewData = {
         textContent: reviewText,
         rating: reviewRating,
@@ -114,33 +115,28 @@ export default function Reviews({ locationId }) {
         date: Timestamp.now(),
         additionalFeedback,
       };
-  
+
       const reviewDocRef = userReview
         ? doc(firestore, "reviews", userReview.id)
         : doc(collection(firestore, "reviews"), `${user.uid}_${locationId}`);
-  
+
       await setDoc(reviewDocRef, reviewData);
-  
+
       console.log("Review saved successfully.");
       setOpen(false);
-  
-      // Fetch and update the average rating and review count
-      await fetchAndUpdateAverageRating(locationId);
-  
+
       fetchReviews(); // Refresh reviews
     } catch (error) {
       console.error("Error saving review:", error);
     }
   };
-  
-  
 
   const removeReview = async () => {
     if (!user || !userReview) return;
 
     const reviewDocRef = doc(firestore, "reviews", userReview.id);
     await deleteDoc(reviewDocRef);
-    setUserReview(null); // Clear user's review state
+    setUserReview(null);
     fetchReviews(); // Refresh reviews and ratings
   };
 
@@ -153,7 +149,7 @@ export default function Reviews({ locationId }) {
 
   useEffect(() => {
     fetchReviews();
-  }, [locationId, user]);
+  }, [fetchReviews]);
 
   return (
     <div className="w-full max-w-4xl space-y-4 overflow-auto mt-5">

@@ -26,9 +26,10 @@ const FirestoreSearchResults = ({
   userCoordinates,
   radius,
   pageSize = 10,
-  searchQuery,
+  searchQuery = "",
   sortBy,
   openNow = false,
+  showAll = false,
 }) => {
   const [results, setResults] = useState([]);
   const [filteredLocations, setFilteredLocations] = useState([]);
@@ -69,14 +70,15 @@ const FirestoreSearchResults = ({
             distance,
             reviewCount,
             averageRating,
-            openNowStatus: isOpenNow(location.opening_hours), // Check if location is open now
+            openNowStatus: isOpenNow(location.opening_hours),
           };
         })
       );
 
       const filtered = processedLocations.filter((location) => {
-        const matchesOpenNow = !openNow || location.openNowStatus; // Apply openNow filter
-        return matchesOpenNow && location.distance <= radius;
+        const matchesOpenNow = !openNow || location.openNowStatus;
+        const withinRadius = location.distance <= radius;
+        return matchesOpenNow && withinRadius;
       });
 
       setFilteredLocations(filtered);
@@ -99,11 +101,17 @@ const FirestoreSearchResults = ({
 
   const updateResults = useCallback(() => {
     const queryLower = searchQuery.toLowerCase();
-    let filtered = filteredLocations.filter((location) => {
-      const nameMatch = location.name?.toLowerCase().includes(queryLower);
-      const typeMatch = location.types?.some((type) => type.toLowerCase().includes(queryLower));
-      return nameMatch || typeMatch;
-    });
+    let filtered = filteredLocations;
+
+    if (!showAll && searchQuery) {
+      filtered = filtered.filter((location) => {
+        const nameMatch = location.name?.toLowerCase().includes(queryLower);
+        const typeMatch = location.types?.some((type) =>
+          type.toLowerCase().includes(queryLower)
+        );
+        return nameMatch || typeMatch;
+      });
+    }
 
     // Sort the filtered locations
     filtered = sortLocations(filtered, sortBy);
@@ -111,7 +119,7 @@ const FirestoreSearchResults = ({
     // Paginate results
     const startIndex = (currentPage - 1) * pageSize;
     setResults(filtered.slice(startIndex, startIndex + pageSize));
-  }, [filteredLocations, searchQuery, currentPage, pageSize, sortBy]);
+  }, [filteredLocations, searchQuery, currentPage, pageSize, sortBy, showAll]);
 
   useEffect(() => {
     fetchResults();
@@ -121,30 +129,64 @@ const FirestoreSearchResults = ({
     updateResults();
   }, [filteredLocations, searchQuery, sortBy, currentPage]);
 
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
-    <div>
-      {loading ? (
-        <p>Loading...</p>
-      ) : results.length > 0 ? (
-        <div className="grid gap-6">
-          {results.map((location) => (
-            <PlaceCard
-              key={location.id}
-              id={location.id}
-              name={location.name}
-              address={location.address}
-              rating={location.averageRating}
-              reviewCount={location.reviewCount}
-              distance={location.distance.toFixed(2)}
-              openingHours={location.opening_hours}
-              imageUrl={location.photos ? location.photos[0]?.url : null}
-            />
-          ))}
+<div className="flex flex-col justify-between min-h-screen">
+  {loading ? (
+    <p className="text-center">Loading...</p>
+  ) : results.length > 0 ? (
+    <>
+      <div className="grid gap-6">
+        {results.map((location) => (
+          <PlaceCard
+            key={location.id}
+            id={location.id}
+            name={location.name}
+            address={location.address}
+            rating={location.averageRating}
+            reviewCount={location.reviewCount}
+            distance={location.distance.toFixed(2)}
+            openingHours={location.opening_hours}
+            imageUrl={location.photos ? location.photos[0]?.url : null}
+          />
+        ))}
+      </div>
+      <div className="flex justify-center items-center mt-6">
+        <div className="join">
+          <button
+            className="join-item btn"
+            onClick={() => {
+              handlePageChange(currentPage - 1);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            disabled={currentPage === 1}
+          >
+            «
+          </button>
+          <span className="join-item btn">Page {currentPage}</span>
+          <button
+            className="join-item btn"
+            onClick={() => {
+              handlePageChange(currentPage + 1);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            disabled={currentPage * pageSize >= filteredLocations.length}
+          >
+            »
+          </button>
         </div>
-      ) : (
-        <p className="text-center text-gray-600 mt-10">No results found.</p>
-      )}
-    </div>
+      </div>
+    </>
+  ) : (
+    <p className="text-center text-gray-600 mt-10">No results found.</p>
+  )}
+</div>
+
+
   );
 };
 

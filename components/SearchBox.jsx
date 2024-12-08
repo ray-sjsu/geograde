@@ -24,7 +24,12 @@ const SearchBox = () => {
       const geocoder = new MapboxGeocoder({
         accessToken: mapboxgl.accessToken,
         types: "country,region,place,postcode,locality,neighborhood,address",
-        placeholder: "Search for a location...",
+        placeholder: "Search for a location",
+        proximity: {
+          longitude: -121.8907,
+          latitude: 37.3362, // San Jose default coordinates
+        },
+        query: "San Jose, California, United States", 
       });
 
       geocoderRef.current = geocoder;

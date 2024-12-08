@@ -100,7 +100,7 @@ const PlaceCard = ({ id, name, address, openingHours, imageUrl, price, weekdayTe
   return (
     <div className="card card-side bg-base-100 shadow-xl rounded-xl relative">
       {/* Open/Closed Status on card */}
-      <div className="absolute top-2 right-2">
+      <div className="absolute top-5 right-5">
         <p
           className={`ml-1 text-lg font-semibold ${openStatus ? "text-green-600" : "text-red-600"}`}
         >
@@ -116,7 +116,7 @@ const PlaceCard = ({ id, name, address, openingHours, imageUrl, price, weekdayTe
             "https://fakeimg.pl/500x500?text=No+Images" // Placeholder if no image
           }
           alt={name}
-          className="w-60 h-60 object-cover"
+          className="w-60 h-60 object-fill rounded-xl"
         />
       </figure>
 

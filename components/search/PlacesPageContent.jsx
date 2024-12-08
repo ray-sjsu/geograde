@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useCoordinates } from "/components/CoordinatesContext";
 import SearchInputs from "/components/search/SearchInputs";
@@ -14,52 +14,35 @@ import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const PlacesPageContent = () => {
   const searchParams = useSearchParams();
-  const { coordinates, setCoordinates, searchQuery, setSearchQuery } =
-    useCoordinates();
+  const { coordinates } = useCoordinates();
 
   const [formData, setFormData] = useState({
-    searchQuery: searchQuery || DEFAULT_SEARCH_QUERY,
+    searchQuery: DEFAULT_SEARCH_QUERY,
     category: DEFAULT_CATEGORY,
     radius: DEFAULT_RADIUS,
-    openNow: false,
+    openNow: false, // Add openNow to formData
   });
 
-  const [sortBy, setSortBy] = useState("total_reviews");
+  const [sortBy, setSortBy] = useState("total_reviews"); // Default sorting method
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showAll, setShowAll] = useState(false); // Track whether to show all locations
 
-  // Initialize data from searchParams or localStorage
   useEffect(() => {
-    const savedData =
-      typeof window !== "undefined"
-        ? JSON.parse(localStorage.getItem("searchFormData")) || {}
-        : {};
+    const preloadSearchQuery =
+      searchParams.get("searchQuery") || DEFAULT_SEARCH_QUERY;
+    const preloadCategory = searchParams.get("category") || DEFAULT_CATEGORY;
+    const isShowAll = searchParams.has("showAll"); // Check if 'showAll' is in the URL query
+
+    setShowAll(isShowAll);
 
     setFormData((prev) => ({
-      searchQuery: searchParams.get("searchQuery") || savedData.searchQuery || prev.searchQuery,
-      category: searchParams.get("category") || savedData.category || DEFAULT_CATEGORY,
-      radius: savedData.radius || DEFAULT_RADIUS,
-      openNow: savedData.openNow || false,
+      ...prev,
+      searchQuery: preloadSearchQuery,
+      category: preloadCategory,
+      radius: isShowAll ? Infinity : DEFAULT_RADIUS,
     }));
-
-    if (savedData.coordinates) {
-      setCoordinates(savedData.coordinates);
-    }
-  }, [searchParams, setCoordinates]);
-
-  // Save data to localStorage whenever formData or sortBy changes
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem(
-        "searchFormData",
-        JSON.stringify({
-          ...formData,
-          coordinates,
-        })
-      );
-      localStorage.setItem("sortBy", sortBy);
-    }
-  }, [formData, sortBy, coordinates]);
+  }, [searchParams]);
 
   const handleChange = useCallback((e) => {
     const { name, type, value, checked } = e.target;
@@ -67,9 +50,6 @@ const PlacesPageContent = () => {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
-  }, []);
-
-  const handleSortChange = useCallback((e) => {
     setSortBy(e.target.value);
   }, []);
 
@@ -108,9 +88,10 @@ const PlacesPageContent = () => {
                 userCoordinates={userCoordinates}
                 radius={formData.radius}
                 searchQuery={formData.searchQuery}
-                sortBy={sortBy}
-                openNow={formData.openNow}
+                sortBy={formData.sortBy || sortBy} 
+                openNow={formData.openNow} 
                 pageSize={10}
+                showAll={showAll}
               />
             </div>
           )}
@@ -128,12 +109,7 @@ const PlacesPageContent = () => {
           }}
         >
           <h2 className="text-xl font-bold mb-4">Filter and Sort</h2>
-          <SearchInputs
-            formData={formData}
-            handleChange={handleChange}
-            handleSortChange={handleSortChange}
-            sortBy={sortBy}
-          />
+          <SearchInputs formData={formData} handleChange={handleChange} />
         </aside>
       </div>
     </div>
