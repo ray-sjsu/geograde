@@ -6,21 +6,6 @@ import StarRatingDisplay from "../StarRatingDisplay";
 import { collection, getDocs, query, where, doc, deleteDoc } from "firebase/firestore";
 import { firestore, auth } from "/app/firebase/config";
 
-const fetchLocationDetails = async (locationId) => {
-  try {
-    const response = await fetch(`/api/locations/simplified/overview?locationId=${locationId}`);
-    if (response.ok) {
-      const data = await response.json();
-      return data;
-    }
-    console.error("Failed to fetch location details");
-    return null;
-  } catch (error) {
-    console.error("Error fetching location details:", error);
-    return null;
-  }
-};
-
 const Favorite = ({ location, onRemove }) => {
   const [averageRating, setAverageRating] = useState(null);
   const [reviewCount, setReviewCount] = useState(0);
