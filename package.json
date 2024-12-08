@@ -12,6 +12,8 @@
     "db-push": "npx prisma db push"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.7.1",
+    "@fortawesome/fontawesome-svg-core": "^6.7.1",
     "@lottiefiles/dotlottie-react": "^0.10.1",
     "@mapbox/mapbox-gl-geocoder": "^5.0.3",
     "@prisma/client": "^5.22.0",

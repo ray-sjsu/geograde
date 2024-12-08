@@ -56,7 +56,7 @@ const ProfilePage = () => {
         <div className="flex justify-center mb-6">
           <img
             alt="User Avatar"
-            src={user.photoURL || "/default-avatar.png"} // Use default avatar if none
+            src={user.photoURL || "/images/default.png"} // Use default avatar if none
             className="rounded-full w-32 h-32"
           />
         </div>
