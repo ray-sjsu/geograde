@@ -127,6 +127,10 @@ const FirestoreSearchResults = ({
   }, [fetchResults]);
 
   useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, radius, sortBy, openNow]);
+
+  useEffect(() => {
     updateResults();
   }, [filteredLocations, searchQuery, sortBy, currentPage]);
 
@@ -164,28 +168,20 @@ const FirestoreSearchResults = ({
       </div>
       <div className="flex justify-center items-center mt-6">
         <div className="join">
-          <button
-            className="join-item btn"
-            onClick={() => {
-              handlePageChange(currentPage - 1);
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-            disabled={currentPage === 1}
-          >
-            «
-          </button>
-          <span className="join-item btn">Page {currentPage}</span>
-          <button
-            className="join-item btn"
-            onClick={() => {
-              handlePageChange(currentPage + 1);
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-            disabled={currentPage * pageSize >= filteredLocations.length || results.length < pageSize}
-
-          >
-            »
-          </button>
+        <button
+          className="join-item btn"
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          «
+        </button>
+        <button
+          className="join-item btn"
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage * pageSize >= filteredLocations.length || results.length < pageSize}
+        >
+          »
+        </button>
         </div>
       </div>
     </>
