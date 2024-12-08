@@ -6,10 +6,12 @@ import Link from "next/link";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "/app/firebase/config";
 import { signOut } from "firebase/auth";
+import { usePathname } from "next/navigation";
 
 const ClientAuthMenu = () => {
   const [user] = useAuthState(auth);
-
+  const pathname = usePathname(); 
+  const currentPath = encodeURIComponent(pathname);
   const handleLogout = async () => {
     await signOut(auth);
   };
@@ -21,7 +23,7 @@ const ClientAuthMenu = () => {
           {user ? (
             <img
               alt="User Avatar"
-              src={user.photoURL || "/default-avatar.png"} // Use default avatar if none
+              src={user.photoURL || "/images/default.png"}
             />
           ) : (
             <div className="bg-black w-full h-full rounded-full" />
@@ -46,10 +48,10 @@ const ClientAuthMenu = () => {
         ) : (
           <>
             <li>
-              <Link href="/sign-in">Sign In</Link>
+              <Link href={`/sign-in?redirect=${currentPath}`}>Sign In</Link>
             </li>
             <li>
-              <Link href="/sign-up">Register</Link>
+              <Link href={`/sign-up?redirect=${currentPath}`}>Register</Link>
             </li>
           </>
         )}

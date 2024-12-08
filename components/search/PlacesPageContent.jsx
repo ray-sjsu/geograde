@@ -14,38 +14,46 @@ import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const PlacesPageContent = () => {
   const searchParams = useSearchParams();
-  const { coordinates } = useCoordinates(); // Get coordinates from the context
+  const { coordinates } = useCoordinates();
 
   const [formData, setFormData] = useState({
     searchQuery: DEFAULT_SEARCH_QUERY,
     category: DEFAULT_CATEGORY,
     radius: DEFAULT_RADIUS,
+    openNow: false, // Add openNow to formData
   });
 
+  const [sortBy, setSortBy] = useState("total_reviews"); // Default sorting method
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showAll, setShowAll] = useState(false); // Track whether to show all locations
 
   useEffect(() => {
     const preloadSearchQuery =
       searchParams.get("searchQuery") || DEFAULT_SEARCH_QUERY;
     const preloadCategory = searchParams.get("category") || DEFAULT_CATEGORY;
+    const isShowAll = searchParams.has("showAll"); // Check if 'showAll' is in the URL query
+
+    setShowAll(isShowAll);
 
     setFormData((prev) => ({
       ...prev,
       searchQuery: preloadSearchQuery,
       category: preloadCategory,
+      radius: isShowAll ? Infinity : DEFAULT_RADIUS,
     }));
   }, [searchParams]);
 
   const handleChange = useCallback((e) => {
-    const { name, value } = e.target;
+    const { name, type, value, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === "checkbox" ? checked : value,
     }));
+    setSortBy(e.target.value);
   }, []);
 
-  const userCoordinates = coordinates || { latitude: 0, longitude: 0 }; // Default to (0, 0) if not set
+  const userCoordinates = coordinates || { latitude: 0, longitude: 0 };
 
   return (
     <div className="drawer lg:drawer-open">
@@ -75,12 +83,15 @@ const PlacesPageContent = () => {
 
           {/* Search Results */}
           {!loading && (
-            <div className="w-full max-w-7xl mx-auto p-4">
+            <div className="w-full mx-auto p-8">
               <FirestoreSearchResults
                 userCoordinates={userCoordinates}
-                radius={parseFloat(formData.radius) || 10} // Default radius
-                searchQuery={formData.searchQuery} // Pass the search query
+                radius={formData.radius}
+                searchQuery={formData.searchQuery}
+                sortBy={formData.sortBy || sortBy} 
+                openNow={formData.openNow} 
                 pageSize={10}
+                showAll={showAll}
               />
             </div>
           )}
@@ -97,7 +108,7 @@ const PlacesPageContent = () => {
             marginTop: "var(--navbar-height)",
           }}
         >
-          <h2 className="text-xl font-bold mb-4">Filter</h2>
+          <h2 className="text-xl font-bold mb-4">Filter and Sort</h2>
           <SearchInputs formData={formData} handleChange={handleChange} />
         </aside>
       </div>

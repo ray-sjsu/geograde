@@ -1,38 +1,55 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, query, where, addDoc, limit } from "firebase/firestore";
+import { collection, getDocs, query, where, limit } from "firebase/firestore";
 import { firestore } from "@/app/firebase/config";
 import StarRatingDisplay from "../StarRatingDisplay";
+import PlaceBadges from "../PlaceBadges";
 
-
-//check if business is open or closed
 const isOpenNow = (periods) => {
-  if (!periods || periods.length === 0) return false;
+  if (!periods || periods.length === 0) {
+    return false;
+  }
 
   const now = new Date();
-  const currentDay = now.getDay();
+  const currentDay = now.getDay(); // 0 is Sunday, 6 is Saturday
   const currentTime = parseInt(
     now.toTimeString().slice(0, 2) + now.toTimeString().slice(3, 5)
   );
 
-  //loop thru to see if time falls in period times
   for (const period of periods) {
-    if (period.open.day === currentDay) {
-      const openTime = parseInt(period.open.time);
-      const closeTime = parseInt(period.close.time);
+    const openDay = period?.open?.day;
+    const closeDay = period?.close?.day;
+    const openTime = parseInt(period?.open?.time);
+    const closeTime = parseInt(period?.close?.time);
 
-      //check if curr time is between open and closing times
-      if (openTime <= currentTime && (closeTime > currentTime || closeTime < openTime)) {
-        return true;
+    // Ensure data is valid
+    if (openDay === undefined || closeDay === undefined || openTime === undefined || closeTime === undefined) {
+      continue;
+    }
+
+    // Check if today is the open day and the current time is within the opening hours
+    if (openDay === currentDay) {
+      if (closeDay === currentDay) {
+        // Closing is the same day
+        if (openTime <= currentTime && currentTime < closeTime) {
+          return true;
+        }
+      } else {
+        // Closing is the next day
+        if (openTime <= currentTime || currentTime < closeTime) {
+          return true;
+        }
       }
     }
   }
   return false;
 };
 
+
+
 // Main PlaceCard component
-const PlaceCard = ({ id, name, address, openingHours, imageUrl, price, weekdayText, }) => {
+const PlaceCard = ({ id, name, address, openingHours, imageUrl, price, weekdayText }) => {
   const openStatus = isOpenNow(openingHours?.periods);
   const [averageRating, setAverageRating] = useState(0);
   const [reviewCount, setReviewCount] = useState(0);
@@ -40,6 +57,7 @@ const PlaceCard = ({ id, name, address, openingHours, imageUrl, price, weekdayTe
 
   // Fetch average rating and review count
   useEffect(() => {
+    
     const fetchAverageRating = async () => {
       try {
         const reviewsRef = collection(firestore, "reviews");
@@ -57,7 +75,7 @@ const PlaceCard = ({ id, name, address, openingHours, imageUrl, price, weekdayTe
       }
     };
     fetchAverageRating();
-  }, [id, weekdayText]);
+  }, [id]);
 
   // Fetch thumbnail image from Firestore
   useEffect(() => {
@@ -82,7 +100,7 @@ const PlaceCard = ({ id, name, address, openingHours, imageUrl, price, weekdayTe
   return (
     <div className="card card-side bg-base-100 shadow-xl rounded-xl relative">
       {/* Open/Closed Status on card */}
-      <div className="absolute top-2 right-2">
+      <div className="absolute top-5 right-5">
         <p
           className={`ml-1 text-lg font-semibold ${openStatus ? "text-green-600" : "text-red-600"}`}
         >
@@ -98,7 +116,7 @@ const PlaceCard = ({ id, name, address, openingHours, imageUrl, price, weekdayTe
             "https://fakeimg.pl/500x500?text=No+Images" // Placeholder if no image
           }
           alt={name}
-          className="w-60 h-60 object-cover"
+          className="w-60 h-60 object-fill rounded-xl"
         />
       </figure>
 
@@ -116,12 +134,13 @@ const PlaceCard = ({ id, name, address, openingHours, imageUrl, price, weekdayTe
         <div>
           <StarRatingDisplay rating={averageRating} reviewCount={reviewCount} />
         </div>
+        <div>
+         <PlaceBadges locationId={id} />
+        </div>
 
         <div className="card-actions justify-end">
           <a
             href={`/search/${id}`}
-            target="_blank"
-            rel="noopener noreferrer"
             className="btn btn-primary"
           >
             View More

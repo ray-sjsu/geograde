@@ -6,10 +6,8 @@ import { useRouter } from "next/navigation";
 const Hero = () => {
   const router = useRouter();
 
-  // Navigate to the search page with preloaded parameters
-  const navigateToSearch = (params) => {
-    const queryString = new URLSearchParams(params).toString();
-    router.push(`/search?${queryString}`);
+  const navigateToSearch = () => {
+    router.push(`/search?showAll=true`);
   };
 
   return (
@@ -23,17 +21,15 @@ const Hero = () => {
       <div className="hero-overlay bg-opacity-60"></div>
       <div className="hero-content text-center p-6 bg-white rounded-lg shadow-lg">
         <div className="max-w-md">
-          <h1 className="text-5xl font-bold text-gray-800 mb-2">
-            Geograde
-          </h1>
+          <h1 className="text-5xl font-bold text-gray-800 mb-2">Geograde</h1>
           <p className="text-gray-800 text-lg font-semibold">
             Find your place to become an academic weapon
           </p>
           <button
-            onClick={() => navigateToSearch({})}
+            onClick={navigateToSearch}
             className="btn btn-secondary mt-6"
           >
-            Find your study spot!
+            Show All 
           </button>
         </div>
       </div>

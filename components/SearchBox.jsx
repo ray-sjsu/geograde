@@ -24,7 +24,12 @@ const SearchBox = () => {
       const geocoder = new MapboxGeocoder({
         accessToken: mapboxgl.accessToken,
         types: "country,region,place,postcode,locality,neighborhood,address",
-        placeholder: "Location",
+        placeholder: "Search for a location",
+        proximity: {
+          longitude: -121.8907,
+          latitude: 37.3362, // San Jose default coordinates
+        },
+        query: "San Jose, California, United States", 
       });
 
       geocoderRef.current = geocoder;
@@ -32,26 +37,30 @@ const SearchBox = () => {
       // Add Geocoder to the container
       geocoder.addTo(geocoderContainerRef.current);
 
-      // Handle events
+      // Handle result selection
       geocoder.on("result", (e) => {
         const [longitude, latitude] = e.result.center;
         setCoordinates({ latitude, longitude });
-        console.log("Coordinates set:", { latitude, longitude });
+        localStorage.setItem("mapboxLocation", e.result.place_name || ""); // Save selected location
       });
 
+      // Handle clearing the input
       geocoder.on("clear", () => {
         setCoordinates(null);
-        console.log("Geocoder input cleared");
+        localStorage.removeItem("mapboxLocation");
       });
+
+      // Load saved location on mount
+      const savedLocation = localStorage.getItem("mapboxLocation");
+      if (savedLocation) {
+        geocoder.setInput(savedLocation);
+      }
     }
 
     return () => {
-      // Cleanup on component unmount
       if (geocoderRef.current) {
         geocoderRef.current.clear();
-        if (geocoderContainerRef.current) {
-          geocoderContainerRef.current.innerHTML = ""; // Clear container
-        }
+        geocoderContainerRef.current.innerHTML = ""; // Clear container
         geocoderRef.current = null;
       }
     };

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { firestore, auth } from "@/app/firebase/config";
-import FavoritesList from "@/components/Favorites/FavoritesList"; // Adjust path as needed
-import UserReviews from "@/components/UserReviews"; // Import the UserReviews component
+import FavoritesList from "@/components/Favorites/FavoritesList"; 
+import UserReviews from "@/components/reviews/UserReviews"; 
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import AccountInformation from "./AccountInformation";
 
@@ -56,7 +56,7 @@ const ProfilePage = () => {
         <div className="flex justify-center mb-6">
           <img
             alt="User Avatar"
-            src={user.photoURL || "/default-avatar.png"} // Use default avatar if none
+            src={user.photoURL || "/images/default.png"} // Use default avatar if none
             className="rounded-full w-32 h-32"
           />
         </div>

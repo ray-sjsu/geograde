@@ -7,13 +7,13 @@ import PlacesPageContent from "@/components/search/PlacesPageContent";
 const SearchPage = () => {
   return (
     <Suspense fallback={
-    <div>
-      <DotLottieReact
-        src="/assets/Animation - 1732701110760.lottie"
-        loop
-        autoplay
-      />
-    </div>}>
+      <div>
+        <DotLottieReact
+          src="https://lottie.host/f78896eb-1cdc-45e7-aed9-628f1d07d3ed/kQYtSnWl1I.lottie"
+          loop
+          autoplay
+        />
+      </div>}>
       <PlacesPageContent />
     </Suspense>
   );

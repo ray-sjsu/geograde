@@ -8,6 +8,7 @@ import { collection, getDocs, query, where, addDoc } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { firestore } from "/app/firebase/config";
 import UploadPhotoModal from "../image-kit/UploadImage";
+import PlaceBadges from "../PlaceBadges";
 
 
 const isOpenNow = (periods) => {
@@ -130,7 +131,7 @@ const PlaceDetails = ({
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 bg-base-100 rounded-lg shadow-md">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 bg-base-100 rounded-lg shadow-md text-base-content">
       {/* Left Section */}
       <div className="flex flex-col items-start space-y-2">
         <h1 className="text-4xl font-bold text-gray-800">
@@ -144,12 +145,16 @@ const PlaceDetails = ({
               .join("")}
           </p>
         )}
+        <div className="flex flex-row">
+          <PlaceBadges locationId={locationId} />
+        </div>
         <p
           className={`ml-1 text-lg font-semibold ${openStatus ? "text-green-600" : "text-red-600"}`}
         >
           {openStatus ? "Open Now" : "Closed"}
         </p>
         <FavoriteButton locationId={locationId} locationName={name || "Unknown Location"} />
+
       </div>
 
       {/* Right Section (Address, Website, Directions) */}
@@ -183,57 +188,62 @@ const PlaceDetails = ({
       </div>
 
 
-      {/* Carousel Section */}
-      <div className="lg:col-span-2">
-        <h2 className="text-2xl text-base-content font-semibold ml-2">Photos</h2>
-        <div className="carousel carousel-center bg-neutral rounded-box space-x-4 p-4">
-          {photos && photos.length > 0 ? (
-            photos.map((photo, index) => (
-              <div key={index} className="carousel-item">
-                <Image
-                  src={photo.url}
-                  alt={`Photo of ${name}`}
-                  height={200}
-                  width={300}
-                  className="rounded-md"
-                />
-              </div>
-            ))
-          ) : (
-            <div className="flex items-center justify-center bg-gray-200 h-28 w-full rounded-md">
-              <p className="text-gray-500">No photos available. Be the first to upload!</p>
-            </div>
-          )}
-        </div>
 
-        <div className="mt-2">
-          <button
-            onClick={() => setModalOpen(true)}
-            className="btn btn-primary btn-outline"
-          >
-            Add a Photo
-          </button>
-        </div>
-
-        <UploadPhotoModal
-          locationId={locationId}
-          userId={userId}
-          isOpen={isModalOpen}
-          onClose={() => setModalOpen(false)}
-          onUploadSuccess={handleUploadSuccess}
-        />
+    {/* Carousel Section */}
+    <div className="lg:col-span-2">
+      {/* Photos Header and Add Photo Button */}
+      <div className="flex items-center mb-4">
+        <p className="text-2xl text-base-content font-semibold ml-2">Photos</p>
+        <button
+          onClick={() => setModalOpen(true)}
+          className="btn btn-primary btn-outline ml-4"
+        >
+          Add a Photo
+        </button>
       </div>
+
+      {/* Photos Carousel */}
+      <div className="carousel carousel-center bg-neutral rounded-box space-x-4 p-4">
+        {photos && photos.length > 0 ? (
+          photos.map((photo, index) => (
+            <div key={index} className="carousel-item">
+              <Image
+                src={photo.url}
+                alt={`Photo of ${name}`}
+                height={200}
+                width={300}
+                className="rounded-md"
+              />
+            </div>
+          ))
+        ) : (
+          <div className="flex items-center justify-center bg-gray-200 h-28 w-full rounded-md">
+            <p className="text-gray-500">No photos available. Be the first to upload!</p>
+          </div>
+        )}
+      </div>
+
+      {/* Photo Upload Modal */}
+      <UploadPhotoModal
+        locationId={locationId}
+        userId={userId}
+        isOpen={isModalOpen}
+        onClose={() => setModalOpen(false)}
+        onUploadSuccess={handleUploadSuccess}
+      />
+    </div>
+
       {/* Business hrs curr under car but want to move to right side of reviews next sprint*/}
       <div className="lg:col-span-2 flex flex-col space-y-2 mt-4">
       {openingHours?.weekday_text && (
-      <div className="bg-gray-100 p-4 rounded-md shadow">
-        <h3 className="text-xl font-bold text-gray-700">Business Hours:</h3> 
-        <ul className="mt-2 text-gray-700">
-          {openingHours.weekday_text.map((day, index) => (
-            <li key={index}>{day}</li>
-          ))}
-        </ul>
-      </div>
+        <div className="bg-gray-100 p-4 rounded-md shadow">
+          <h3 className="text-xl font-bold text-gray-700">Business Hours:</h3> 
+          <ul className="mt-2 text-gray-700">
+            {openingHours.weekday_text.map((day, index) => (
+              <li key={index}>{day}</li>
+            ))}
+          </ul>
+        </div>
 
         )}
       </div>
