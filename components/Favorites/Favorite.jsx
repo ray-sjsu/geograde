@@ -33,11 +33,19 @@ const Favorite = ({ location, onRemove }) => {
 
   useEffect(() => {
     const fetchImage = async () => {
-      const locationDetails = await fetchLocationDetails(location.locationId);
-      if (locationDetails?.photos?.data?.length > 0) {
-        setImage(locationDetails.photos.data[0].images.medium.url);
-      } else {
-        setImage(null);
+      try {
+        const photosRef = collection(firestore, `locations/${location.locationId}/photos`);
+        const photosQuery = query(photosRef);
+        const photosSnapshot = await getDocs(photosQuery);
+
+        if (!photosSnapshot.empty) {
+          const photoData = photosSnapshot.docs[0]?.data();
+          setImage(photoData?.url || null); // Assume `url` is the field storing the image URL in Firestore
+        } else {
+          setImage(null);
+        }
+      } catch (error) {
+        console.error("Error fetching image from Firestore:", error);
       }
     };
 
@@ -70,7 +78,7 @@ const Favorite = ({ location, onRemove }) => {
           {image ? (
             <Image
               src={image}
-              alt={"https://fakeimg.pl/500x500?text=No+Image"}
+              alt={location.locationName}
               height={96}
               width={96}
               className="object-cover w-full h-full"
