@@ -4,11 +4,12 @@ import React, { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import FavoriteButton from "/components/Favorites/FavoriteButton";
 import StarRatingDisplay from "../StarRatingDisplay";
-import { collection, getDocs, query, where, addDoc } from "firebase/firestore";
+import { collection, getDocs, query, where, addDoc, setDoc, doc } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { firestore } from "/app/firebase/config";
 import UploadPhotoModal from "../image-kit/UploadImage";
 import PlaceBadges from "../PlaceBadges";
+import { v4 as uuidv4 } from "uuid";
 
 
 const isOpenNow = (periods) => {
@@ -103,6 +104,16 @@ const PlaceDetails = ({
 
   const handleUploadSuccess = async (photoData) => {
     try {
+      // Generate a unique photoId using uuid
+      const photoId = uuidv4();
+  
+      // Add the locationId to the photo data
+      const photoWithLocationId = {
+        ...photoData,
+        photoId,
+        locationId, // Attach the locationId
+      };
+  
       // Add photo to `locations/{locationId}/photos`
       const locationPhotosCollection = collection(
         firestore,
@@ -110,8 +121,8 @@ const PlaceDetails = ({
         locationId,
         "photos"
       );
-      await addDoc(locationPhotosCollection, photoData);
-
+      await setDoc(doc(locationPhotosCollection, photoId), photoWithLocationId);
+  
       // Add photo to `users/{userId}/photos`
       if (userId) {
         const userPhotosCollection = collection(
@@ -120,11 +131,14 @@ const PlaceDetails = ({
           userId,
           "photos"
         );
-        await addDoc(userPhotosCollection, photoData);
+        await setDoc(doc(userPhotosCollection, photoId), photoWithLocationId);
       }
-
+  
       // Update local state
-      setPhotos((prev) => [...prev, photoData]);
+      setPhotos((prev) => [
+        ...prev,
+        photoWithLocationId,
+      ]);
     } catch (error) {
       console.error("Error saving photo to Firestore:", error);
     }

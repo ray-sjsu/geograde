@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { ImageKitProvider, IKUpload } from "imagekitio-next";
 import ImageKitImage from "@/components/image-kit/ImageKitImage";
-import { collection, addDoc } from "firebase/firestore";
+import { setDoc, doc } from "firebase/firestore";
 import { firestore } from "@/app/firebase/config";
 
 const publicKey = process.env.NEXT_PUBLIC_PUBLIC_KEY;
@@ -27,8 +27,8 @@ const authenticator = async () => {
 };
 
 const UploadPhotoModal = ({ locationId, userId, isOpen, onClose, onUploadSuccess }) => {
-  const [fileName, setFileName] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
+  const [fileName, setFileName] = useState(null); // Temporary file path
+  const [previewUrl, setPreviewUrl] = useState(null); // Preview image URL
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -44,8 +44,8 @@ const UploadPhotoModal = ({ locationId, userId, isOpen, onClose, onUploadSuccess
   };
 
   const handleUploadSuccess = (res) => {
-    setFileName(res.filePath);
-    setPreviewUrl(`${urlEndpoint}/${res.filePath}`);
+    setFileName(res.filePath); // Store file path temporarily
+    setPreviewUrl(`${urlEndpoint}/${res.filePath}`); // Show preview
   };
 
   const handleSubmit = async () => {
@@ -62,21 +62,24 @@ const UploadPhotoModal = ({ locationId, userId, isOpen, onClose, onUploadSuccess
         timestamp: new Date(),
       };
 
-      // Save to Firestore
-      const locationPhotosCollection = collection(firestore, "locations", locationId, "photos");
-      await addDoc(locationPhotosCollection, photoData);
+      const photoId = fileName.replace(/\//g, "_"); // Replace slashes for valid Firestore ID
 
+      // Save photo to location's photos collection
+      const locationPhotoRef = doc(firestore, `locations-${locationId}-photos/${photoId}`);
+      await setDoc(locationPhotoRef, photoData);
+
+      // Save photo to user's photos collection
       if (userId) {
-        const userPhotosCollection = collection(firestore, "users", userId, "photos");
-        await addDoc(userPhotosCollection, photoData);
+        const userPhotoRef = doc(firestore, `users-${userId}-photos/${photoId}`);
+        await setDoc(userPhotoRef, { ...photoData, locationId });
       }
 
-      onUploadSuccess(photoData);
-      setFileName(null);
+      onUploadSuccess(photoData); // Notify parent of successful upload
+      setFileName(null); // Reset state
       setPreviewUrl(null);
       setCategories([]);
       setLoading(false);
-      onClose();
+      onClose(); // Close modal
     } catch (err) {
       setError("Failed to save photo to Firestore.");
       console.error(err);
@@ -117,9 +120,9 @@ const UploadPhotoModal = ({ locationId, userId, isOpen, onClose, onUploadSuccess
           authenticator={authenticator}
         >
           <IKUpload
-            onSuccess={handleUploadSuccess}
+            onSuccess={handleUploadSuccess} // Set preview on success
             onError={() => setError("Failed to upload image.")}
-            folder={`/locations/${locationId}`}
+            folder={`locations_${locationId}`} // Use underscores for valid folder paths
             useUniqueFileName
             className="w-full"
           />
@@ -129,11 +132,11 @@ const UploadPhotoModal = ({ locationId, userId, isOpen, onClose, onUploadSuccess
         {previewUrl && (
           <div className="carousel rounded-box w-full mt-4">
             <div className="carousel-item w-full">
-            <ImageKitImage
-              src={previewUrl}
-              alt="Image Preview"
-              className="rounded-lg"
-            />
+              <ImageKitImage
+                src={previewUrl}
+                alt="Image Preview"
+                className="rounded-lg"
+              />
             </div>
           </div>
         )}
@@ -148,7 +151,7 @@ const UploadPhotoModal = ({ locationId, userId, isOpen, onClose, onUploadSuccess
           }`}
           disabled={loading}
         >
-          {loading ? "Uploading..." : "Submit Photo"}
+          {loading ? "Submitting..." : "Submit Photo"}
         </button>
 
         {/* Error Message */}
