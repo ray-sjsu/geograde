@@ -35,6 +35,8 @@ export default function Reviews({ locationId }) {
     FastInternet: false,
     PurchaseRequired: false,
   });
+  const [showToast, setShowToast] = useState(false);
+  const [removeToast, setRemoveToast] = useState(false);
 
   // Fetch user authentication state
   useEffect(() => {
@@ -125,7 +127,10 @@ export default function Reviews({ locationId }) {
       console.log("Review saved successfully.");
       setOpen(false);
 
-      fetchReviews(); // Refresh reviews
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000); 
+
+      fetchReviews(); 
     } catch (error) {
       console.error("Error saving review:", error);
     }
@@ -137,7 +142,11 @@ export default function Reviews({ locationId }) {
     const reviewDocRef = doc(firestore, "reviews", userReview.id);
     await deleteDoc(reviewDocRef);
     setUserReview(null);
-    fetchReviews(); // Refresh reviews and ratings
+
+    setRemoveToast(true);
+    setTimeout(() => setRemoveToast(false), 3000);
+
+    fetchReviews(); 
   };
 
   const handleFeedbackChange = (key) => {
@@ -244,6 +253,22 @@ export default function Reviews({ locationId }) {
         <Review key={review.id} {...review} />
       ))}
       {reviews.length === 0 && <p className="text-gray-500 text-center">No Reviews. Be the first to write one! </p>}
+
+      {showToast && (
+        <div className="toast toast-center fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="alert alert-success">
+            <span>Review Submmitted!</span>
+          </div>
+        </div>
+      )}
+
+      {removeToast && (
+        <div className="toast toast-center fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="alert alert-success">
+            <span>Review Deleted!</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

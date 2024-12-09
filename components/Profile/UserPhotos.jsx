@@ -9,6 +9,8 @@ const UserPhotos = () => {
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showToast, setShowToast] = useState(false);
+
 
   // Fetch user-submitted photos
   useEffect(() => {
@@ -62,6 +64,9 @@ const UserPhotos = () => {
   
       // Update local state
       setPhotos((prevPhotos) => prevPhotos.filter((photo) => photo.photoId !== photoId));
+      
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000); 
     } catch (error) {
       console.error("Error deleting photo:", error);
       alert("Failed to delete photo. Please try again.");
@@ -115,6 +120,13 @@ const UserPhotos = () => {
           </button>
         </div>
       ))}
+      {showToast && (
+        <div className="toast toast-center fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="alert alert-success">
+            <span>Photo deleted successfully!</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

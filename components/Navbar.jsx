@@ -67,7 +67,7 @@ const Navbar = () => {
           {/* Keyword Input */}
           <input
             type="text"
-            placeholder="Place Type/Name (Philz Coffee, cafe...)"
+            placeholder="Place Type/Name (cafe, Philz...)"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleKeyPress} // Trigger search on Enter
