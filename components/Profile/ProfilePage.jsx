@@ -5,6 +5,7 @@ import FavoritesList from "@/components/Favorites/FavoritesList";
 import UserReviews from "@/components/reviews/UserReviews"; 
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import AccountInformation from "./AccountInformation";
+import UserPhotos from "./UserPhotos";
 
 const ProfilePage = () => {
   const [activeSection, setActiveSection] = useState("account");
@@ -80,6 +81,12 @@ const ProfilePage = () => {
           >
             Reviews
           </li>
+          <li
+            className={`btn ${activeSection === "photos" ? "btn-secondary" : "btn-primary"}`}
+            onClick={() => setActiveSection("photos")}
+          >
+            Photos
+          </li>
         </ul>
       </div>
 
@@ -90,6 +97,11 @@ const ProfilePage = () => {
         {!loading && activeSection === "reviews" && (
           <div>
             <UserReviews userId={user.uid} />
+          </div>
+        )}
+        {!loading && activeSection === "photos" && (
+          <div>
+            <UserPhotos />
           </div>
         )}
       </div>

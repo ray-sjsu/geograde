@@ -6,21 +6,6 @@ import StarRatingDisplay from "../StarRatingDisplay";
 import { collection, getDocs, query, where, doc, deleteDoc } from "firebase/firestore";
 import { firestore, auth } from "/app/firebase/config";
 
-const fetchLocationDetails = async (locationId) => {
-  try {
-    const response = await fetch(`/api/locations/simplified/overview?locationId=${locationId}`);
-    if (response.ok) {
-      const data = await response.json();
-      return data;
-    }
-    console.error("Failed to fetch location details");
-    return null;
-  } catch (error) {
-    console.error("Error fetching location details:", error);
-    return null;
-  }
-};
-
 const Favorite = ({ location, onRemove }) => {
   const [averageRating, setAverageRating] = useState(null);
   const [reviewCount, setReviewCount] = useState(0);
@@ -48,11 +33,19 @@ const Favorite = ({ location, onRemove }) => {
 
   useEffect(() => {
     const fetchImage = async () => {
-      const locationDetails = await fetchLocationDetails(location.locationId);
-      if (locationDetails?.photos?.data?.length > 0) {
-        setImage(locationDetails.photos.data[0].images.medium.url);
-      } else {
-        setImage(null);
+      try {
+        const photosRef = collection(firestore, `locations/${location.locationId}/photos`);
+        const photosQuery = query(photosRef);
+        const photosSnapshot = await getDocs(photosQuery);
+
+        if (!photosSnapshot.empty) {
+          const photoData = photosSnapshot.docs[0]?.data();
+          setImage(photoData?.url || null);
+        } else {
+          setImage(null);
+        }
+      } catch (error) {
+        console.error("Error fetching image from Firestore:", error);
       }
     };
 
@@ -85,7 +78,7 @@ const Favorite = ({ location, onRemove }) => {
           {image ? (
             <Image
               src={image}
-              alt={"https://fakeimg.pl/500x500?text=No+Image"}
+              alt={location.locationName}
               height={96}
               width={96}
               className="object-cover w-full h-full"
