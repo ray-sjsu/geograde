@@ -40,7 +40,7 @@ const Favorite = ({ location, onRemove }) => {
 
         if (!photosSnapshot.empty) {
           const photoData = photosSnapshot.docs[0]?.data();
-          setImage(photoData?.url || null); // Assume `url` is the field storing the image URL in Firestore
+          setImage(photoData?.url || null);
         } else {
           setImage(null);
         }

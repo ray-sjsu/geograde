@@ -212,7 +212,7 @@ const PlaceDetails = ({
                 alt={`Photo of ${name}`}
                 height={200}
                 width={300}
-                className="rounded-md"
+                className="rounded-md w-full"
               />
             </div>
           ))

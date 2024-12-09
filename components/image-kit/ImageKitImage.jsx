@@ -1,11 +1,17 @@
 "use client";
 import React from "react";
-import { IKImage } from "imagekitio-next";
 
-const urlEndpoint = process.env.NEXT_PUBLIC_URL_ENDPOINT;
+const ImageKitImage = ({ src, alt, ...props }) => {
+  const fallbackImage = "https://via.placeholder.com/300x200?text=No+Image";
 
-const ImageKitImage = (props) => {
-  return <IKImage urlEndpoint={urlEndpoint} {...props} />;
+  return (
+    <img
+      src={src || fallbackImage}
+      alt={alt || "Image"}
+      {...props} // Pass transformation or styling props
+      className={`${props.className || ""} object-cover`} // Ensure object-fit styling
+    />
+  );
 };
 
 export default ImageKitImage;

@@ -1,7 +1,10 @@
 "use client";
 
-import React, { useState, useRef } from "react";
-import { IKUpload, ImageKitProvider } from "imagekitio-next";
+import React, { useState } from "react";
+import { ImageKitProvider, IKUpload } from "imagekitio-next";
+import ImageKitImage from "@/components/image-kit/ImageKitImage";
+import { collection, addDoc } from "firebase/firestore";
+import { firestore } from "@/app/firebase/config";
 
 const publicKey = process.env.NEXT_PUBLIC_PUBLIC_KEY;
 const urlEndpoint = process.env.NEXT_PUBLIC_URL_ENDPOINT;
@@ -9,17 +12,14 @@ const urlEndpoint = process.env.NEXT_PUBLIC_URL_ENDPOINT;
 const authenticator = async () => {
   try {
     const res = await fetch(`/api/auth/upload-auth`, { cache: "no-store" });
-
     if (!res.ok) {
       throw new Error("Authentication failed! " + res.statusText);
     }
-
     const data = await res.json();
-    const { token, signature, expire } = data;
     return {
-      token,
-      signature,
-      expire,
+      token: data.token,
+      signature: data.signature,
+      expire: data.expire,
     };
   } catch (err) {
     throw new Error("Authentication failed!");
@@ -27,49 +27,61 @@ const authenticator = async () => {
 };
 
 const UploadPhotoModal = ({ locationId, userId, isOpen, onClose, onUploadSuccess }) => {
+  const [fileName, setFileName] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
-  const [uploadedFileName, setUploadedFileName] = useState(null);
-  const [selectedCategories, setSelectedCategories] = useState([]);
-  const ikUploadRef = useRef(null);
+  const [error, setError] = useState(null);
 
-  const categories = ["Outlets", "Vibe", "Seating", "Menu", "Food and Drink"];
+  const availableCategories = ["Outlets", "Vibe", "Seating", "Menu", "Food and Drink", "Exterior"];
 
   const toggleCategory = (category) => {
-    setSelectedCategories((prev) =>
+    setCategories((prev) =>
       prev.includes(category)
         ? prev.filter((c) => c !== category)
         : [...prev, category]
     );
   };
 
-  const generateUniqueFileName = (locationId, userId) => {
-    const randomNumber = Math.floor(Math.random() * 1_000_000_000);
-    return `placephoto-${locationId}-${userId}-${randomNumber}`;
+  const handleUploadSuccess = (res) => {
+    setFileName(res.filePath);
+    setPreviewUrl(`${urlEndpoint}/${res.filePath}`);
   };
 
-  const handleSuccess = (res) => {
-    const uploadedFileName = res.filePath;
-    const photoData = {
-      url: `${urlEndpoint}/${uploadedFileName}`,
-      categories: selectedCategories,
-      userId: userId,
-      timestamp: new Date(),
-    };
-    onUploadSuccess(photoData);
-    setUploadedFileName(uploadedFileName);
-    setLoading(false);
-    onClose(); // Close the modal after successful upload
-  };
+  const handleSubmit = async () => {
+    if (!fileName) {
+      setError("Please upload a file before submitting.");
+      return;
+    }
+    try {
+      setLoading(true);
+      const photoData = {
+        url: `${urlEndpoint}/${fileName}`,
+        categories,
+        userId,
+        timestamp: new Date(),
+      };
 
-  const handleError = () => {
-    setError(true);
-    setLoading(false);
-  };
+      // Save to Firestore
+      const locationPhotosCollection = collection(firestore, "locations", locationId, "photos");
+      await addDoc(locationPhotosCollection, photoData);
 
-  const handleStart = () => {
-    setLoading(true);
-    setError(false);
+      if (userId) {
+        const userPhotosCollection = collection(firestore, "users", userId, "photos");
+        await addDoc(userPhotosCollection, photoData);
+      }
+
+      onUploadSuccess(photoData);
+      setFileName(null);
+      setPreviewUrl(null);
+      setCategories([]);
+      setLoading(false);
+      onClose();
+    } catch (err) {
+      setError("Failed to save photo to Firestore.");
+      console.error(err);
+      setLoading(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -79,16 +91,16 @@ const UploadPhotoModal = ({ locationId, userId, isOpen, onClose, onUploadSuccess
       <div className="bg-base-300 text-base-content rounded-lg shadow-lg p-6 w-96">
         <h2 className="text-2xl font-bold mb-4">Upload a Photo</h2>
 
-        {/* Categories Selection */}
+        {/* Categories */}
         <div className="mb-4">
           <h3 className="font-semibold text-lg">Select Categories</h3>
           <div className="grid grid-cols-2 gap-2 mt-2">
-            {categories.map((category) => (
+            {availableCategories.map((category) => (
               <label key={category} className="flex items-center space-x-2">
                 <input
                   type="checkbox"
                   value={category}
-                  checked={selectedCategories.includes(category)}
+                  checked={categories.includes(category)}
                   onChange={() => toggleCategory(category)}
                   className="form-checkbox"
                 />
@@ -98,40 +110,51 @@ const UploadPhotoModal = ({ locationId, userId, isOpen, onClose, onUploadSuccess
           </div>
         </div>
 
-        {/* Image Upload */}
+        {/* File Upload */}
         <ImageKitProvider
           publicKey={publicKey}
           urlEndpoint={urlEndpoint}
           authenticator={authenticator}
         >
           <IKUpload
-            isPrivateFile={false}
-            useUniqueFileName={false}
-            fileName={generateUniqueFileName(locationId, userId)}
-            onError={handleError}
-            onSuccess={handleSuccess}
-            onUploadStart={handleStart}
-            style={{ display: "none" }}
-            ref={ikUploadRef}
+            onSuccess={handleUploadSuccess}
+            onError={() => setError("Failed to upload image.")}
+            folder={`/locations/${locationId}`}
+            useUniqueFileName
+            className="w-full"
           />
         </ImageKitProvider>
 
+        {/* Image Preview */}
+        {previewUrl && (
+          <div className="carousel rounded-box w-full mt-4">
+            <div className="carousel-item w-full">
+            <ImageKitImage
+              src={previewUrl}
+              alt="Image Preview"
+              className="rounded-lg"
+            />
+            </div>
+          </div>
+        )}
+
+        {/* Submit Button */}
         <button
-          onClick={() => ikUploadRef.current.click()}
-          className={`w-full py-2 px-4 rounded-lg font-semibold shadow ${
+          onClick={handleSubmit}
+          className={`w-full py-2 px-4 mt-4 rounded-lg font-semibold shadow ${
             loading
               ? "bg-gray-300 text-gray-500 cursor-not-allowed"
               : "bg-green-500 text-white hover:bg-green-600"
           }`}
           disabled={loading}
         >
-          {loading ? "Uploading..." : "Choose an Image to Upload"}
+          {loading ? "Uploading..." : "Submit Photo"}
         </button>
 
         {/* Error Message */}
         {error && (
           <div className="mt-4 text-center text-red-500">
-            Failed to upload. Please try again.
+            {error}
           </div>
         )}
 
