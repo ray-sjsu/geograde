@@ -41,8 +41,8 @@ const SignIn = () => {
     <div className="flex flex-col lg:flex-row items-center justify-center min-h-screen bg-orange-50 gap-16">
       {/* Form */}
       <div className="bg-white shadow-md rounded-box px-8 pt-6 pb-8 w-full max-w-md text-center">
-        <h1 className="text-3xl font-bold self-center mb-6">Log in</h1>
-        <span className="self-center mb-4 block">
+        <h1 className="text-3xl font-bold self-center mb-6 text-black">Log in</h1>
+        <span className="self-center mb-4 block text-black">
           Don&apos;t have an account?{" "}
           <a href="/sign-up" className="link link-secondary">
             Register
