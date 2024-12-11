@@ -257,7 +257,7 @@ export default function Reviews({ locationId }) {
       {showToast && (
         <div className="toast toast-center fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
           <div className="alert alert-success">
-            <span>Review Submmitted!</span>
+            <span>Review Submitted!</span>
           </div>
         </div>
       )}
