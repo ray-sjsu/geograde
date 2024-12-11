@@ -7,7 +7,14 @@
 3. Right-click on `geograde` folder (that contains project files) and click `Open with Code`.
 4. Open a new terminal in `VSCode`. Go the toolbar (top-left), click `Terminal` and within the dropdown menu, click `New Terminal`.
 
-## Run From Github
+## Run from local folder (with built version)
+1. Install [NodeJS runtime](https://nodejs.org/en) and [Visual Studio Code](https://code.visualstudio.com/) MUST-HAVE
+2. Open GeoGrade folder in VSCode
+3. Run command `npm install`. This will install all necessary npm packages.
+4. Run command `npm run start`. This will run a complied version of the app.
+5. Go to localhost:3000 on your browser to see the website.
+
+## Run from github
 1. Install [NodeJS runtime](https://nodejs.org/en) and [Visual Studio Code](https://code.visualstudio.com/) MUST-HAVE
 2. Clone github repository in VSCode
 3. In the Top-Left, open the terminal. Or open with " **CTRL + `** "
