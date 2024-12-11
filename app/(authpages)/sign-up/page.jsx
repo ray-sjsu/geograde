@@ -104,13 +104,14 @@ const SignUp = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
               required
+              style={{ color: "black" }}
             />
           </label>
 
           {/* Password Input */}
           <label className="form-control mb-4">
             <div className="label">
-              <span className="label-text">Password</span>
+              <span className="label-text">Password (should be 6+ characters)</span>
             </div>
             <input
               type="password"
@@ -119,6 +120,7 @@ const SignUp = () => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               required
+              style={{ color: "black" }}
             />
           </label>
 
@@ -134,6 +136,7 @@ const SignUp = () => {
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirm your password"
               required
+              style={{ color: "black" }}
             />
           </label>
 
