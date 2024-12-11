@@ -7,6 +7,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "/app/firebase/config";
 import { signOut } from "firebase/auth";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 const ClientAuthMenu = () => {
   const [user] = useAuthState(auth);
@@ -21,9 +22,11 @@ const ClientAuthMenu = () => {
       <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
         <div className="w-10 rounded-full">
           {user ? (
-            <img
+            <Image
               alt="User Avatar"
               src={user.photoURL || "/images/default.png"}
+              width={500}
+              height={500}
             />
           ) : (
             <div className="bg-black w-full h-full rounded-full" />
