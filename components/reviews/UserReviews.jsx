@@ -172,7 +172,7 @@ const UserReviews = () => {
         ))
       ) : (
         <div>
-          <p className="text-neutral-content">You haven&#39;t written any reviews yet.</p>
+          <p className="text-black">You haven&#39;t written any reviews yet.</p>
         </div>
       )}
 

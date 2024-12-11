@@ -6,6 +6,7 @@ import UserReviews from "@/components/reviews/UserReviews";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import AccountInformation from "./AccountInformation";
 import UserPhotos from "./UserPhotos";
+import Image from "next/image";
 
 const ProfilePage = () => {
   const [activeSection, setActiveSection] = useState("account");
@@ -55,10 +56,12 @@ const ProfilePage = () => {
       {/* Sidebar Navigation */}
       <div className="md:w-1/4 w-full bg-base-100 text-base-content p-6">
         <div className="flex justify-center mb-6">
-          <img
+          <Image
             alt="User Avatar"
             src={user.photoURL || "/images/default.png"} // Use default avatar if none
             className="rounded-full w-32 h-32"
+            width={500}
+            height={500}
           />
         </div>
         <h2 className="text-xl text-center font-semibold mb-4">Profile</h2>

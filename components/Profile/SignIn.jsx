@@ -3,7 +3,12 @@
 import React, { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { auth } from "/app/firebase/config";
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+} from "firebase/auth";
+import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -16,9 +21,34 @@ const SignIn = () => {
   const handleGoogleSignIn = async () => {
     setError("");
     const provider = new GoogleAuthProvider();
+    const db = getFirestore();
 
     try {
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      const userDocRef = doc(db, "users", user.uid);
+
+      const userDocSnap = await getDoc(userDocRef);
+
+      if (!userDocSnap.exists()) {
+        await setDoc(userDocRef, {
+          createdAt: new Date().toISOString(),
+          email: user.email,
+          imageUrl: user.photoURL || "",
+          lastSignIn: new Date().toISOString(),
+          name: user.displayName || "Anonymous",
+        });
+      } else {
+        await setDoc(
+          userDocRef,
+          {
+            lastSignIn: new Date().toISOString(),
+          },
+          { merge: true }
+        );
+      }
+
       router.push(redirectPath);
     } catch (err) {
       setError("Google sign-in failed. Please try again.");
@@ -28,9 +58,38 @@ const SignIn = () => {
   const handleEmailSignIn = async (e) => {
     e.preventDefault();
     setError("");
+    const db = getFirestore();
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+
+      const userDocRef = doc(db, "users", user.uid);
+
+      const userDocSnap = await getDoc(userDocRef);
+
+      if (!userDocSnap.exists()) {
+        await setDoc(userDocRef, {
+          createdAt: new Date().toISOString(),
+          email: user.email,
+          imageUrl: user.photoURL || "",
+          lastSignIn: new Date().toISOString(),
+          name: user.displayName || email.split("@")[0],
+        });
+      } else {
+        await setDoc(
+          userDocRef,
+          {
+            lastSignIn: new Date().toISOString(),
+          },
+          { merge: true }
+        );
+      }
+
       router.push(redirectPath);
     } catch (err) {
       setError("Invalid email or password. Please try again.");
@@ -41,7 +100,9 @@ const SignIn = () => {
     <div className="flex flex-col lg:flex-row items-center justify-center min-h-screen bg-orange-50 gap-16">
       {/* Form */}
       <div className="bg-white shadow-md rounded-box px-8 pt-6 pb-8 w-full max-w-md text-center">
-        <h1 className="text-3xl font-bold self-center mb-6 text-black">Log in</h1>
+        <h1 className="text-3xl font-bold self-center mb-6 text-black">
+          Log in
+        </h1>
         <span className="self-center mb-4 block text-black">
           Don&apos;t have an account?{" "}
           <a href="/sign-up" className="link link-secondary">
