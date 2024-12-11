@@ -4,11 +4,14 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "**", // Allows all domains (bad idea will fix it later)
+        hostname: "**",
       },
     ],
   },
   reactStrictMode: false,
+  devIndicators: {
+    appIsrStatus: false,
+  },
 };
 
 export default nextConfig;
