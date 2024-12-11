@@ -5,6 +5,7 @@ import { collection, getDocs, query, where, limit } from "firebase/firestore";
 import { firestore } from "@/app/firebase/config";
 import StarRatingDisplay from "../StarRatingDisplay";
 import PlaceBadges from "../PlaceBadges";
+import Image from "next/image";
 
 const isOpenNow = (periods) => {
   if (!periods || periods.length === 0) {
@@ -110,13 +111,15 @@ const PlaceCard = ({ id, name, address, openingHours, imageUrl, price, weekdayTe
 
       {/* Image Section */}
       <figure>
-        <img
+        <Image
           src={
             thumbnailUrl ||
             "https://fakeimg.pl/500x500?text=No+Images" // Placeholder if no image
           }
           alt={name}
           className="w-60 h-60 object-fill rounded-xl"
+          width={500}
+          height={500}
         />
       </figure>
 

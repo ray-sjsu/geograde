@@ -10,6 +10,7 @@ import {
 } from "firebase/auth";
 import { doc, setDoc, Timestamp } from "firebase/firestore";
 import { firestore } from "/app/firebase/config";
+import Image from "next/image";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
@@ -146,10 +147,12 @@ const SignUp = () => {
 
       {/* Image */}
       <div className="w-72 h-72 lg:w-96 lg:h-96 rounded-full overflow-hidden border-4 border-gray-200 shadow-md">
-        <img
+        <Image
           src="https://owlpin.wordpress.com/wp-content/uploads/2020/02/img_9575.jpg?w=823"
           alt="Study Spot"
           className="w-full h-full object-cover"
+          height={500}
+          width={500}
         />
       </div>
     </div>

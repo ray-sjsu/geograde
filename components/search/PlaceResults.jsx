@@ -132,7 +132,7 @@ const FirestoreSearchResults = ({
 
   useEffect(() => {
     updateResults();
-  }, [filteredLocations, searchQuery, sortBy, currentPage]);
+  }, [filteredLocations, searchQuery, sortBy, currentPage, updateResults]);
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
